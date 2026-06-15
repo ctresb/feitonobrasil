@@ -1,0 +1,14 @@
+"$schema" = "./node_modules/wrangler/config-schema.json"
+
+name = "feitonobrasil-selo"
+main = "worker/src/index.ts"
+compatibility_date = "2026-06-15"
+
+[[routes]]
+pattern = "selo.feitonobrasil.dev.br"
+custom_domain = true
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+run_worker_first = true

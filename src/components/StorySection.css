@@ -1,0 +1,105 @@
+.story-section {
+  padding: clamp(54px, 8vw, 100px) 0;
+}
+
+.story-heading {
+  max-width: 850px;
+  margin-bottom: 28px;
+}
+
+.story-heading h2 {
+  margin-bottom: 0;
+  font-family: var(--font-display);
+  font-size: 5.6rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 0.96;
+  text-wrap: balance;
+}
+
+.story-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  gap: 14px;
+}
+
+.story-card {
+  min-width: 0;
+  border-radius: var(--radius-xl);
+  padding: clamp(24px, 4.5vw, 44px);
+}
+
+.story-card p {
+  margin-bottom: 16px;
+  font-size: 1.14rem;
+  font-weight: 300;
+  line-height: 1.45;
+}
+
+.story-card-ink {
+  display: grid;
+  align-content: end;
+  min-height: 360px;
+  color: var(--br-white);
+  background: var(--br-blue);
+}
+
+.story-card-paper {
+  border: 2px solid var(--line);
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.story-logo {
+  display: block;
+  width: min(100%, var(--logo-width));
+  height: auto;
+  margin-bottom: clamp(24px, 4vw, 42px);
+  aspect-ratio: var(--logo-ratio);
+  background: currentColor;
+  mask: var(--logo-src) center / contain no-repeat;
+  -webkit-mask: var(--logo-src) center / contain no-repeat;
+}
+
+.story-logo-feitono {
+  --logo-src: url('/feitono.svg');
+  --logo-width: 330px;
+  --logo-ratio: 143 / 37;
+  color: var(--br-green);
+}
+
+.story-logo-brasil {
+  --logo-src: url('/Brasil.svg');
+  --logo-width: 430px;
+  --logo-ratio: 250 / 67;
+  color: var(--br-yellow);
+  transform: rotate(-2deg);
+}
+
+.story-card-paper a {
+  display: inline-flex;
+  margin-top: 6px;
+  color: var(--br-blue);
+  font-weight: 900;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+@media (max-width: 780px) {
+  .story-heading h2 {
+    font-size: 4rem;
+  }
+
+  .story-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .story-card-ink {
+    min-height: 280px;
+  }
+}
+
+@media (max-width: 480px) {
+  .story-heading h2 {
+    font-size: 3.35rem;
+  }
+}

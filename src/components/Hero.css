@@ -1,0 +1,119 @@
+.hero-section {
+  position: relative;
+  display: grid;
+  align-items: center;
+  width: 100vw;
+  min-height: clamp(720px, 76svh, 800px);
+  margin-left: calc(50% - 50vw);
+  overflow: hidden;
+  padding:
+    clamp(112px, 13vw, 150px)
+    max(28px, calc((100vw - var(--container)) / 2))
+    clamp(58px, 7vw, 150px);
+  background: url('/hero.jpg') center / cover no-repeat;
+  color: var(--br-white);
+  isolation: isolate;
+}
+
+.hero-section::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 -1px;
+  height: clamp(190px, 24vw, 300px);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 250, 240, 0) 0%,
+    rgba(255, 250, 240, 0.2) 32%,
+    rgba(255, 250, 240, 0.68) 70%,
+    var(--paper) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 1;
+  max-width: min(860px, 100%);
+  transform: translateY(clamp(-54px, -5vw, -28px));
+}
+
+.hero-copy .section-label {
+  color: var(--br-yellow);
+}
+
+.hero-copy h1 {
+  max-width: none;
+  margin-bottom: 18px;
+  font-family: var(--font-display);
+  font-size: clamp(5.2rem, 8.8vw, 8.4rem);
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 0.92;
+  text-wrap: balance;
+  text-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  white-space: nowrap;
+}
+
+.hero-lede {
+  max-width: 620px;
+  margin-bottom: 22px;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 1.34rem;
+  font-weight: 300;
+  line-height: 1.45;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.hero-section .button-quiet {
+  border-color: rgba(255, 255, 255, 0.76);
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--ink);
+}
+
+.hero-section .button-primary {
+  border-color: var(--br-green);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+}
+
+@media (max-width: 880px) {
+  .hero-section {
+    min-height: auto;
+    padding-top: 108px;
+    background-position: 58% center;
+  }
+
+  .hero-copy h1 {
+    font-size: 5.4rem;
+    white-space: normal;
+  }
+}
+
+@media (max-width: 620px) {
+  .hero-section {
+    min-height: 650px;
+    padding:
+      98px
+      20px
+      52px;
+    background: url('/hero.jpg') 58% center / cover no-repeat;
+  }
+
+  .hero-copy h1 {
+    font-size: 4.2rem;
+    line-height: 0.96;
+  }
+
+  .hero-lede {
+    font-size: 1.18rem;
+  }
+
+  .hero-actions {
+    display: grid;
+  }
+}

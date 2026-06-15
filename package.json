@@ -1,0 +1,27 @@
+{
+  "name": "feitonobrasil",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "worker:dev": "wrangler dev --config wrangler.toml",
+    "worker:deploy": "pnpm build && wrangler deploy --config wrangler.toml",
+    "worker:deploy:workers-dev": "pnpm build && wrangler deploy --config wrangler.workers-dev.toml"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "typescript": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "wrangler": "^4.100.0"
+  }
+}

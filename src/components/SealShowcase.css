@@ -1,0 +1,140 @@
+.seal-section {
+  padding: clamp(54px, 8vw, 94px) 0;
+  border-top: 2px solid var(--line);
+}
+
+.seal-intro {
+  max-width: 760px;
+  margin-bottom: 30px;
+}
+
+.seal-intro h2 {
+  margin-bottom: 16px;
+  font-family: var(--font-display);
+  font-size: clamp(3.7rem, 6vw, 4.7rem);
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1;
+  text-wrap: balance;
+}
+
+.seal-intro p:not(.section-label) {
+  max-width: 600px;
+  margin-bottom: 0;
+  color: rgba(35, 35, 36, 0.72);
+  font-size: 1.2rem;
+  font-weight: 300;
+  line-height: 1.5;
+}
+
+.seal-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.seal-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 18px;
+  padding: 18px 20px;
+  border: 2px solid rgba(35, 35, 36, 0.14);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.seal-cta p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.28rem;
+  font-weight: 900;
+}
+
+.seal-tile {
+  display: grid;
+  grid-template-rows: auto minmax(94px, 1fr) auto;
+  gap: 16px;
+  min-height: 244px;
+  padding: 16px;
+  border: 2px solid rgba(35, 35, 36, 0.14);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 6px 18px rgba(35, 35, 36, 0.06);
+}
+
+.seal-tile-dark {
+  background: var(--ink);
+  box-shadow: 0 6px 18px rgba(35, 35, 36, 0.16);
+}
+
+.seal-tile span {
+  display: block;
+  color: var(--muted);
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.seal-tile small {
+  display: block;
+  margin-top: 4px;
+  color: rgba(35, 35, 36, 0.58);
+  font-size: 0.98rem;
+  font-weight: 300;
+}
+
+.seal-tile-dark span {
+  color: var(--ash);
+}
+
+.seal-tile-dark small {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.seal-tile img {
+  width: 100%;
+  max-height: 118px;
+  align-self: end;
+  object-fit: contain;
+}
+
+.seal-tile button {
+  min-height: 42px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--br-white);
+  color: var(--ink);
+  font-size: 1.08rem;
+  font-weight: 900;
+}
+
+.seal-tile button:hover {
+  background: var(--br-yellow);
+}
+
+@media (max-width: 900px) {
+  .seal-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .seal-intro h2 {
+    font-size: 4.2rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .seal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .seal-cta {
+    display: grid;
+  }
+
+  .seal-intro h2 {
+    font-size: 3.5rem;
+  }
+}

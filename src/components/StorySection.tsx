@@ -12,9 +12,9 @@ export function StorySection() {
         <article className="story-card story-card-paper">
           <span className="story-logo story-logo-feitono" role="img" aria-label="feito no" />
           <p>
-            “feito no” é uma expressão de duas palavras: direta, curta e sem virar marca inventada. Aqui ela aparece em Londrina Solid, família de Marcelo Magalhães, da Tipos Pereira, criada a partir de letras desenhadas à mão em papel quadriculado e papel vegetal, com referência ao vernacular de lanchonetes, fachadas e comércio de rua; o nome Londrina veio da cidade onde Marcelo viveu.
+            “feito no” é uma expressão de duas palavras: direta, curta e sem virar marca inventada. Aqui ela aparece em Londrina Solid, uma fonte de <strong>Marcelo Magalhães</strong>, da Tipos Pereira, criada a partir de letras desenhadas à mão em papel quadriculado e papel vegetal, com referência ao vernacular de lanchonetes, fachadas e comércio de rua; o nome Londrina veio da cidade onde Marcelo viveu.
           </p>
-          <a href="https://github.com/marcelommp/Londrina-Typeface" target="_blank" rel="noreferrer">
+          <a href="https://tipospereira.com/londrina-typeface-1" target="_blank" rel="noreferrer">
             Fonte da Londrina
           </a>
         </article>

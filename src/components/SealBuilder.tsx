@@ -93,10 +93,10 @@ export function SealBuilder() {
 
   const previewBg = useMemo(() => {
     if (options.colorMode === 'variant' && (options.variant === 'branco' || options.variant === 'branco-colorido')) {
-      return '#0d0d0e';
+      return 'var(--ink)';
     }
     if (options.colorMode === 'single' && normalizeHexColor(options.singleColor, '') === '#ffffff') {
-      return '#0d0d0e';
+      return 'var(--ink)';
     }
     return undefined;
   }, [options.colorMode, options.variant, options.singleColor]);

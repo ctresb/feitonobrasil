@@ -5,6 +5,14 @@ main = "worker/src/index.ts"
 compatibility_date = "2026-06-15"
 
 [[routes]]
+pattern = "feitonobrasil.dev.br"
+custom_domain = true
+
+[[routes]]
+pattern = "www.feitonobrasil.dev.br"
+custom_domain = true
+
+[[routes]]
 pattern = "selo.feitonobrasil.dev.br"
 custom_domain = true
 

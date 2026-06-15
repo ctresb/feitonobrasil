@@ -184,6 +184,13 @@ function svgResponse(svg: string) {
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    const url = new URL(request.url);
+
+    if (url.hostname === 'www.feitonobrasil.dev.br') {
+      url.hostname = 'feitonobrasil.dev.br';
+      return Response.redirect(url.toString(), 301);
+    }
+
     if (request.method === 'OPTIONS') {
       return new Response(null, {
         headers: {
@@ -198,7 +205,6 @@ export default {
     }
 
     try {
-      const url = new URL(request.url);
       const segments = getPathSegments(url);
 
       if (segments.some((segment) => segment.startsWith('.'))) {

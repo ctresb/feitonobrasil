@@ -8,6 +8,7 @@ import {
   getSealAssetPath,
   getSnippet,
   type ColorMode,
+  type PictureFallback,
   type SealOptions,
   type SealScale,
   type SealVariant,
@@ -35,6 +36,7 @@ const colorModes: Array<{ value: ColorMode; label: string }> = [
 const snippetTabs: Array<{ value: SnippetKind; label: string }> = [
   { value: 'markdown', label: 'Markdown' },
   { value: 'html', label: 'HTML' },
+  { value: 'picture', label: 'Picture (HTML)' },
   { value: 'readme', label: 'README' },
   { value: 'react', label: 'React' },
   { value: 'typescript', label: 'TypeScript' },
@@ -51,6 +53,8 @@ export function SealBuilder() {
   const [activeSnippet, setActiveSnippet] = useState<SnippetKind>('html');
   const [baseSvg, setBaseSvg] = useState('');
   const [copyState, setCopyState] = useState<'idle' | 'success' | 'error'>('idle');
+  const [darkVariant, setDarkVariant] = useState<SealVariant>('branco-colorido');
+  const [pictureFallback, setPictureFallback] = useState<PictureFallback>('light');
 
   useEffect(() => {
     const controller = new AbortController();
@@ -71,7 +75,19 @@ export function SealBuilder() {
     return svgDataUrl(recolorSealSvg(baseSvg, options));
   }, [baseSvg, options]);
 
-  const snippet = useMemo(() => getSnippet(activeSnippet, options), [activeSnippet, options]);
+  const pictureDarkOptions = useMemo<SealOptions>(
+    () => ({
+      ...options,
+      variant: darkVariant,
+      colorMode: 'variant',
+    }),
+    [options, darkVariant],
+  );
+
+  const snippet = useMemo(
+    () => getSnippet(activeSnippet, options, pictureDarkOptions, pictureFallback),
+    [activeSnippet, options, pictureDarkOptions, pictureFallback],
+  );
   const sealUrl = useMemo(() => buildSealUrl(options), [options]);
 
   function updateOptions(patch: Partial<SealOptions>) {
@@ -184,6 +200,46 @@ export function SealBuilder() {
                   />
                   <b>{options.brasilColor}</b>
                 </label>
+              </div>
+            ) : null}
+
+            {activeSnippet === 'picture' ? (
+              <div className="picture-dark-controls" aria-label="Configuração do tema escuro">
+                <div className="control-row">
+                  <span>Tema escuro</span>
+                  <div className="segmented-control">
+                    {VARIANT_OPTIONS.map((variant) => (
+                      <button
+                        type="button"
+                        key={variant.value}
+                        aria-pressed={darkVariant === variant.value}
+                        onClick={() => setDarkVariant(variant.value as SealVariant)}
+                      >
+                        {variant.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="control-row">
+                  <span>Fallback</span>
+                  <div className="segmented-control">
+                    <button
+                      type="button"
+                      aria-pressed={pictureFallback === 'light'}
+                      onClick={() => setPictureFallback('light')}
+                    >
+                      Claro
+                    </button>
+                    <button
+                      type="button"
+                      aria-pressed={pictureFallback === 'dark'}
+                      onClick={() => setPictureFallback('dark')}
+                    >
+                      Escuro
+                    </button>
+                  </div>
+                </div>
               </div>
             ) : null}
 

@@ -3,6 +3,7 @@ import {
   DEFAULT_BRASIL_LETTER_COLORS,
   LANGUAGE_OPTIONS,
   SCALE_OPTIONS,
+  STYLE_OPTIONS,
   VARIANT_OPTIONS,
   buildSealUrl,
   getSealAlt,
@@ -21,6 +22,7 @@ import './SealBuilder.css';
 
 const DEFAULT_OPTIONS: SealOptions = {
   language: 'pt-br',
+  style: 'divertido',
   variant: 'colorido',
   scale: 1,
   colorMode: 'variant',
@@ -72,13 +74,13 @@ export function SealBuilder() {
   useEffect(() => {
     const controller = new AbortController();
 
-    fetch(getSealAssetPath(options.language), { signal: controller.signal })
+    fetch(getSealAssetPath(options.language, options.style), { signal: controller.signal })
       .then((response) => response.text())
       .then(setBaseSvg)
       .catch(() => setBaseSvg(''));
 
     return () => controller.abort();
-  }, [options.language]);
+  }, [options.language, options.style]);
 
   const previewSrc = useMemo(() => {
     if (!baseSvg) {
@@ -143,6 +145,20 @@ export function SealBuilder() {
           </div>
 
           <div className="builder-controls" aria-label="Controles do selo">
+            <div className="style-tabs" role="tablist" aria-label="Estilo do selo">
+              {STYLE_OPTIONS.map((item) => (
+                <button
+                  type="button"
+                  role="tab"
+                  key={item.value}
+                  aria-selected={options.style === item.value}
+                  onClick={() => updateOptions({ style: item.value })}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
             <div className="control-row">
               <span>Idioma</span>
               <div className="segmented-control">
@@ -229,20 +245,17 @@ export function SealBuilder() {
             {options.colorMode === 'colorido' ? (
               <div className="colorido-panel" aria-label="Cores do selo colorido">
                 <div className="colorido-panel-head">
-                  <div>
-                    <strong>Colorido editável</strong>
-                    <span>Troque a frase e cada letra sem perder o desenho do selo.</span>
-                  </div>
+                  <strong>Colorido editável</strong>
                   <button
                     type="button"
                     onClick={() => updateOptions({ feitoColor: DEFAULT_OPTIONS.feitoColor, ...DEFAULT_BRASIL_LETTER_COLORS })}
                   >
-                    Restaurar padrão
+                    Restaurar
                   </button>
                 </div>
 
                 <label className="feito-color-card">
-                  <span>Feito no</span>
+                  <span>feito no</span>
                   <input
                     type="color"
                     value={options.feitoColor}
@@ -251,11 +264,11 @@ export function SealBuilder() {
                   <b>{options.feitoColor}</b>
                 </label>
 
-                <div className="brasil-letter-editor" aria-label="Cores da palavra Brasil">
-                  <span className="brasil-letter-caption">Brasil</span>
-                  <div className="brasil-letter-strip">
+                <div className="brasil-word-card" aria-label="Cores da palavra Brasil">
+                  <span>Brasil</span>
+                  <div className="brasil-word-editor">
                     {brasilLetterFields.map((field) => (
-                      <label className="brasil-letter-field" key={field.key}>
+                      <label className="brasil-letter-chip" key={field.key}>
                         <input
                           type="color"
                           value={options[field.key] as string}
@@ -263,7 +276,7 @@ export function SealBuilder() {
                           onChange={(event) => updateOptions({ [field.key]: event.target.value })}
                         />
                         <span style={{ color: options[field.key] as string }}>{field.label}</span>
-                        <b>{options[field.key] as string}</b>
+                        <i style={{ backgroundColor: options[field.key] as string }} />
                       </label>
                     ))}
                   </div>

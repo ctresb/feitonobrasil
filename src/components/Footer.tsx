@@ -3,6 +3,7 @@ import './Footer.css';
 
 const sealUrl = buildSealUrl({
   language: 'pt-br',
+  style: 'divertido',
   variant: 'branco',
   scale: 1,
   colorMode: 'variant',

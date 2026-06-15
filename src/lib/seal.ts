@@ -1,4 +1,5 @@
 export type SealLanguage = 'pt-br' | 'en';
+export type SealStyle = 'divertido' | 'serio';
 export type SealVariant =
   | 'colorido'
   | 'branco-colorido'
@@ -13,6 +14,7 @@ export type ColorMode = 'variant' | 'single' | 'split' | 'colorido';
 
 export type SealOptions = {
   language: SealLanguage;
+  style: SealStyle;
   variant: SealVariant;
   scale: SealScale;
   colorMode: ColorMode;
@@ -35,6 +37,11 @@ export const SITE_URL = 'https://feitonobrasil.dev.br';
 export const LANGUAGE_OPTIONS: Array<{ value: SealLanguage; label: string; shortLabel: string }> = [
   { value: 'pt-br', label: 'Português', shortLabel: 'PT-BR' },
   { value: 'en', label: 'English', shortLabel: 'EN' },
+];
+
+export const STYLE_OPTIONS: Array<{ value: SealStyle; label: string }> = [
+  { value: 'divertido', label: 'Divertido' },
+  { value: 'serio', label: 'Sério' },
 ];
 
 export const SCALE_OPTIONS: Array<{ value: SealScale; label: string }> = [
@@ -66,10 +73,12 @@ export function getSealAlt(language: SealLanguage) {
   return language === 'en' ? 'Made in Brazil' : 'Feito no Brasil';
 }
 
-export function getSealAssetPath(language: SealLanguage) {
-  return language === 'en'
-    ? '/selos/madeinbrasil.svg'
-    : '/selos/feitonobrasil.svg';
+export function getSealAssetPath(language: SealLanguage, style: SealStyle = 'divertido') {
+  if (language === 'en') {
+    return style === 'serio' ? '/selos/madeinbrasil-serio.svg' : '/selos/madeinbrasil.svg';
+  }
+
+  return style === 'serio' ? '/selos/feitonobrasil-serio.svg' : '/selos/feitonobrasil.svg';
 }
 
 export function getSealDimensions(scale: SealScale) {
@@ -168,7 +177,8 @@ export function resolveSealColors(
 export function buildSealUrl(options: SealOptions, baseUrl = SEAL_BASE_URL) {
   const variant = options.colorMode === 'variant' ? options.variant : 'custom';
   const scaleLabel = `${options.scale}x`;
-  const url = new URL(`/${options.language}/${variant}/${scaleLabel}.svg`, baseUrl);
+  const stylePath = options.style === 'serio' ? '/serio' : '';
+  const url = new URL(`/${options.language}${stylePath}/${variant}/${scaleLabel}.svg`, baseUrl);
 
   if (options.colorMode === 'single') {
     url.searchParams.set('color', normalizeHexColor(options.singleColor, '#232324'));

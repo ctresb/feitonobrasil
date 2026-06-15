@@ -1,4 +1,4 @@
-import type { ColorMode, SealLanguage, SealOptions, SealScale, SealVariant } from '../../src/lib/seal';
+import type { ColorMode, SealLanguage, SealOptions, SealScale, SealStyle, SealVariant } from '../../src/lib/seal';
 import { DEFAULT_BRASIL_LETTER_COLORS, getSealAssetPath, normalizeHexColor } from '../../src/lib/seal';
 import { recolorSealSvg } from '../../src/lib/sealSvg';
 
@@ -11,10 +11,12 @@ type Env = {
 };
 
 const VARIANTS: SealVariant[] = ['colorido', 'branco-colorido', 'preto', 'branco', 'verde', 'azul', 'amarelo', 'custom'];
+const STYLES: SealStyle[] = ['divertido', 'serio'];
 const SCALES: SealScale[] = [0.5, 1, 2, 3];
 
 const DEFAULT_OPTIONS: SealOptions = {
   language: 'pt-br',
+  style: 'divertido',
   variant: 'colorido',
   scale: 1,
   colorMode: 'variant',
@@ -40,6 +42,24 @@ function parseLanguage(value: string | null): SealLanguage | null {
   }
 
   return null;
+}
+
+function parseStyle(value: string | null): SealStyle | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/_/g, '-').replace(/\.svg$/, '');
+
+  if (normalized === 'serio' || normalized === 'serious' || normalized === 'corp' || normalized === 'corporativo') {
+    return 'serio';
+  }
+
+  if (normalized === 'divertido' || normalized === 'fun' || normalized === 'original') {
+    return 'divertido';
+  }
+
+  return STYLES.includes(normalized as SealStyle) ? (normalized as SealStyle) : null;
 }
 
 function parseVariant(value: string | null): SealVariant | null {
@@ -84,7 +104,7 @@ function isKnownSealPath(request: Request) {
     return false;
   }
 
-  if (segments.length > 3) {
+  if (segments.length > 4) {
     return false;
   }
 
@@ -92,10 +112,27 @@ function isKnownSealPath(request: Request) {
     return false;
   }
 
-  const [first, second, third] = segments;
+  const [first, second, third, fourth] = segments;
   const pathLanguage = parseLanguage(first);
 
   if (pathLanguage) {
+    const pathStyle = parseStyle(second);
+    const variantCandidate = pathStyle ? third : second;
+    const scaleCandidate = pathStyle ? fourth : third;
+
+    if (scaleCandidate && !parseScale(scaleCandidate)) {
+      return false;
+    }
+
+    return Boolean(!variantCandidate || parseVariant(variantCandidate) || parseScale(variantCandidate));
+  }
+
+  const pathStyle = parseStyle(first);
+  if (pathStyle) {
+    if (fourth) {
+      return false;
+    }
+
     if (third && !parseScale(third)) {
       return false;
     }
@@ -118,15 +155,21 @@ function parseRequestOptions(request: Request): SealOptions {
   const url = new URL(request.url);
   const segments = getPathSegments(url);
   const options: SealOptions = { ...DEFAULT_OPTIONS };
-  const [first, second, third] = segments;
+  const [first, second, third, fourth] = segments;
 
   const pathLanguage = parseLanguage(first);
+  const pathStyle = pathLanguage ? parseStyle(second) : parseStyle(first);
+
   if (pathLanguage) {
     options.language = pathLanguage;
   }
 
-  const variantCandidate = pathLanguage ? second : first;
-  const scaleCandidate = pathLanguage ? third : second;
+  if (pathStyle) {
+    options.style = pathStyle;
+  }
+
+  const variantCandidate = pathLanguage ? (pathStyle ? third : second) : (pathStyle ? second : first);
+  const scaleCandidate = pathLanguage ? (pathStyle ? fourth : third) : (pathStyle ? third : second);
   const pathVariant = parseVariant(variantCandidate);
   const pathScale = parseScale(scaleCandidate) ?? parseScale(variantCandidate);
 
@@ -139,6 +182,7 @@ function parseRequestOptions(request: Request): SealOptions {
   }
 
   options.language = parseLanguage(getFirstParam(url, ['lang', 'language', 'idioma'])) ?? options.language;
+  options.style = parseStyle(getFirstParam(url, ['style', 'estilo'])) ?? options.style;
   options.variant = parseVariant(url.searchParams.get('variant')) ?? options.variant;
   options.scale = parseScale(getFirstParam(url, ['scale', 'size', 'tamanho'])) ?? options.scale;
 
@@ -205,8 +249,8 @@ function parseLegacyAssetOptions(url: URL): SealOptions | null {
   };
 }
 
-async function loadBaseSvg(request: Request, env: Env, language: SealLanguage) {
-  const assetUrl = new URL(getSealAssetPath(language), request.url);
+async function loadBaseSvg(request: Request, env: Env, language: SealLanguage, style: SealStyle) {
+  const assetUrl = new URL(getSealAssetPath(language, style), request.url);
   const response = await env.ASSETS.fetch(assetUrl);
 
   if (!response.ok) {
@@ -269,7 +313,7 @@ export default {
       }
 
       const options = legacyOptions ?? parseRequestOptions(request);
-      const baseSvg = await loadBaseSvg(request, env, options.language);
+      const baseSvg = await loadBaseSvg(request, env, options.language, options.style);
       const svg = recolorSealSvg(baseSvg, options);
       return request.method === 'HEAD' ? svgResponse('') : svgResponse(svg);
     } catch (error) {

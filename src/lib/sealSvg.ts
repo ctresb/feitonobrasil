@@ -5,7 +5,8 @@ const PATH_PATTERN = /<path\b[^>]*\/>/g;
 const FILL_PATTERN = /fill="[^"]*"/i;
 const COLORIDO_START_PATTERN = /fill="#009440"/i;
 const PATH_START_X_PATTERN = /d="M([0-9.-]+)/i;
-const BRASIL_LETTERS = ['b', 'r', 'a', 's', 'i', 'i', 'l'] as const;
+const BRASIL_LETTER_SEQUENCE = ['b', 'r', 'a', 's', 'i', 'l'] as const;
+const BRASIL_COLORIDO_PATH_SEQUENCE = ['b', 'r', 'a', 's', 'i', 'i', 'l'] as const;
 
 function replaceFill(path: string, color: string) {
   return path.replace(FILL_PATTERN, `fill="${color}"`);
@@ -21,11 +22,13 @@ function getPathStartX(path: string) {
 }
 
 function getBrasilLetterColors(paths: string[], colors: NonNullable<ReturnType<typeof resolveSealColors>['brasilLetterColors']>) {
+  const letterSequence = paths.length >= BRASIL_COLORIDO_PATH_SEQUENCE.length ? BRASIL_COLORIDO_PATH_SEQUENCE : BRASIL_LETTER_SEQUENCE;
+
   return paths
     .map((path, index) => ({ index, x: getPathStartX(path) }))
     .sort((a, b) => a.x - b.x)
     .reduce<Record<number, string>>((map, path, index) => {
-      map[path.index] = colors[BRASIL_LETTERS[index] ?? 'l'];
+      map[path.index] = colors[letterSequence[index] ?? 'l'];
       return map;
     }, {});
 }

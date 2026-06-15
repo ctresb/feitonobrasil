@@ -4,6 +4,7 @@ import './SealShowcase.css';
 
 const baseOptions: SealOptions = {
   language: 'pt-br',
+  style: 'divertido',
   variant: 'colorido',
   scale: 1,
   colorMode: 'variant',

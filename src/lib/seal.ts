@@ -21,7 +21,7 @@ export type SealOptions = {
   brasilColor: string;
 };
 
-export type SnippetKind = 'markdown' | 'html' | 'readme' | 'react' | 'typescript' | 'javascript' | 'iframe';
+export type SnippetKind = 'markdown' | 'html' | 'readme' | 'picture' | 'react' | 'typescript' | 'javascript' | 'iframe';
 
 export const SEAL_BASE_URL = 'https://selo.feitonobrasil.dev.br';
 export const SITE_URL = 'https://feitonobrasil.dev.br';
@@ -135,7 +135,14 @@ export function buildSealUrl(options: SealOptions, baseUrl = SEAL_BASE_URL) {
   return url.toString();
 }
 
-export function getSnippet(kind: SnippetKind, options: SealOptions) {
+export type PictureFallback = 'light' | 'dark';
+
+export function getSnippet(
+  kind: SnippetKind,
+  options: SealOptions,
+  pictureDarkOptions?: SealOptions,
+  pictureFallback?: PictureFallback,
+) {
   const src = buildSealUrl(options);
   const alt = getSealAlt(options.language);
   const { width, height } = getSealDimensions(options.scale);
@@ -156,6 +163,23 @@ export function getSnippet(kind: SnippetKind, options: SealOptions) {
     <img src="${src}" alt="${alt}" width="${width}" height="${height}" />
   </a>
 </p>`;
+  }
+
+  if (kind === 'picture') {
+    const lightSrc = src;
+    const darkSrc = buildSealUrl(pictureDarkOptions ?? {
+      ...options,
+      variant: 'branco-colorido',
+      colorMode: 'variant',
+    });
+    const fallback = pictureFallback ?? 'light';
+    const fallbackSrc = fallback === 'dark' ? darkSrc : lightSrc;
+
+    return `<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="${darkSrc}">
+  <source media="(prefers-color-scheme: light)" srcset="${lightSrc}">
+  <img alt="${alt}" src="${fallbackSrc}" width="${width}" height="${height}">
+</picture>`;
   }
 
   if (kind === 'react') {

@@ -222,6 +222,30 @@
   white-space: nowrap;
 }
 
+.picture-dark-controls {
+  display: grid;
+  gap: 10px;
+  margin-top: 6px;
+  padding: 14px;
+  border: 2px dashed rgba(35, 35, 36, 0.18);
+  border-radius: 18px;
+  background: rgba(244, 236, 211, 0.4);
+}
+
+.picture-dark-controls .control-row {
+  grid-template-columns: 100px minmax(0, 1fr);
+}
+
+.picture-dark-controls .segmented-control {
+  flex-wrap: wrap;
+}
+
+.picture-dark-controls .segmented-control button {
+  min-height: 36px;
+  padding: 0 10px;
+  font-size: 0.96rem;
+}
+
 .scale-control {
   display: grid;
   gap: 10px;

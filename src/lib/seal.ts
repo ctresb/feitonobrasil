@@ -62,8 +62,8 @@ export function getSealAlt(language: SealLanguage) {
 
 export function getSealAssetPath(language: SealLanguage) {
   return language === 'en'
-    ? '/selos/madeinbrasil_preto_colorido.svg'
-    : '/selos/feitonobrasil_preto_colorido.svg';
+    ? '/selos/madeinbrasil.svg'
+    : '/selos/feitonobrasil.svg';
 }
 
 export function getSealDimensions(scale: SealScale) {

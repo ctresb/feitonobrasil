@@ -160,6 +160,34 @@ function parseRequestOptions(request: Request): SealOptions {
   return options;
 }
 
+function parseLegacyAssetOptions(url: URL): SealOptions | null {
+  const segments = getPathSegments(url);
+
+  if (segments.length !== 2 || segments[0] !== 'selos') {
+    return null;
+  }
+
+  const normalized = segments[1].toLowerCase().replace(/\.svg$/, '');
+  const match = /^(feitonobrasil|madeinbrasil)_(.+)$/.exec(normalized);
+
+  if (!match) {
+    return null;
+  }
+
+  const variantName = match[2] === 'preto_colorido' ? 'colorido' : match[2];
+  const variant = parseVariant(variantName);
+
+  if (!variant) {
+    return null;
+  }
+
+  return {
+    ...DEFAULT_OPTIONS,
+    language: match[1] === 'madeinbrasil' ? 'en' : 'pt-br',
+    variant,
+  };
+}
+
 async function loadBaseSvg(request: Request, env: Env, language: SealLanguage) {
   const assetUrl = new URL(getSealAssetPath(language), request.url);
   const response = await env.ASSETS.fetch(assetUrl);
@@ -217,11 +245,13 @@ export default {
         });
       }
 
-      if (!isKnownSealPath(request)) {
+      const legacyOptions = parseLegacyAssetOptions(url);
+
+      if (!legacyOptions && !isKnownSealPath(request)) {
         return env.ASSETS.fetch(request);
       }
 
-      const options = parseRequestOptions(request);
+      const options = legacyOptions ?? parseRequestOptions(request);
       const baseSvg = await loadBaseSvg(request, env, options.language);
       const svg = recolorSealSvg(baseSvg, options);
       return request.method === 'HEAD' ? svgResponse('') : svgResponse(svg);

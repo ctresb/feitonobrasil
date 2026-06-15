@@ -12,28 +12,24 @@ const baseOptions: SealOptions = {
   brasilColor: '#009440',
 };
 
-const seals: Array<{ src: string; label: string; detail: string; options: SealOptions; dark?: boolean }> = [
+const seals: Array<{ label: string; detail: string; options: SealOptions; dark?: boolean }> = [
   {
-    src: '/selos/feitonobrasil_preto_colorido.svg',
     label: 'PT-BR colorido',
     detail: 'Fundo claro',
     options: { ...baseOptions, language: 'pt-br', variant: 'colorido' },
   },
   {
-    src: '/selos/feitonobrasil_branco.svg',
     label: 'PT-BR branco',
     detail: 'Fundo escuro',
     options: { ...baseOptions, language: 'pt-br', variant: 'branco' },
     dark: true,
   },
   {
-    src: '/selos/madeinbrasil_preto_colorido.svg',
     label: 'EN colorido',
     detail: 'Fundo claro',
     options: { ...baseOptions, language: 'en', variant: 'colorido' },
   },
   {
-    src: '/selos/madeinbrasil_branco.svg',
     label: 'EN branco',
     detail: 'Fundo escuro',
     options: { ...baseOptions, language: 'en', variant: 'branco' },
@@ -67,12 +63,12 @@ export function SealShowcase() {
 
       <div className="seal-grid" aria-label="Variações do selo">
         {seals.map((seal) => (
-          <article className={seal.dark ? 'seal-tile seal-tile-dark' : 'seal-tile'} key={seal.src}>
+          <article className={seal.dark ? 'seal-tile seal-tile-dark' : 'seal-tile'} key={seal.label}>
             <div>
               <span>{seal.label}</span>
               <small>{seal.detail}</small>
             </div>
-            <img src={seal.src} alt={`Selo Feito no Brasil, variação ${seal.label}`} />
+            <img src={buildSealUrl(seal.options)} alt={`Selo Feito no Brasil, variação ${seal.label}`} />
             <button type="button" onClick={() => copySealUrl(seal.label, buildSealUrl(seal.options))}>
               {copiedSeal === seal.label ? 'Copiado' : 'Copiar URL'}
             </button>

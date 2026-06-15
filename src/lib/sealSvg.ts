@@ -4,6 +4,8 @@ import { getSealDimensions, resolveSealColors } from './seal';
 const PATH_PATTERN = /<path\b[^>]*\/>/g;
 const FILL_PATTERN = /fill="[^"]*"/i;
 const COLORIDO_START_PATTERN = /fill="#009440"/i;
+const PATH_START_X_PATTERN = /d="M([0-9.-]+)/i;
+const BRASIL_LETTERS = ['b', 'r', 'a', 's', 'i', 'i', 'l'] as const;
 
 function replaceFill(path: string, color: string) {
   return path.replace(FILL_PATTERN, `fill="${color}"`);
@@ -12,6 +14,20 @@ function replaceFill(path: string, color: string) {
 function splitSealPaths(paths: string[]) {
   const brasilStart = paths.findIndex((path) => COLORIDO_START_PATTERN.test(path));
   return brasilStart > 0 ? brasilStart : Math.ceil(paths.length / 2);
+}
+
+function getPathStartX(path: string) {
+  return Number(PATH_START_X_PATTERN.exec(path)?.[1] ?? 0);
+}
+
+function getBrasilLetterColors(paths: string[], colors: NonNullable<ReturnType<typeof resolveSealColors>['brasilLetterColors']>) {
+  return paths
+    .map((path, index) => ({ index, x: getPathStartX(path) }))
+    .sort((a, b) => a.x - b.x)
+    .reduce<Record<number, string>>((map, path, index) => {
+      map[path.index] = colors[BRASIL_LETTERS[index] ?? 'l'];
+      return map;
+    }, {});
 }
 
 function setIntrinsicSize(svg: string, scale: SealScale) {
@@ -30,15 +46,21 @@ export function recolorSealSvg(baseSvg: string, options: SealOptions) {
   }
 
   const splitIndex = splitSealPaths(paths);
-  const { feitoColor, brasilColor, keepBrasilColorido } = resolveSealColors(options);
+  const { feitoColor, brasilColor, brasilLetterColors, keepBrasilColorido } = resolveSealColors(options);
+  const brasilPathColors = brasilLetterColors ? getBrasilLetterColors(paths.slice(splitIndex), brasilLetterColors) : null;
   let cursor = 0;
 
   const rendered = baseSvg.replace(PATH_PATTERN, (path) => {
     const isFeitoPath = cursor < splitIndex;
+    const brasilIndex = cursor - splitIndex;
     cursor += 1;
 
     if (isFeitoPath) {
       return replaceFill(path, feitoColor);
+    }
+
+    if (brasilPathColors) {
+      return replaceFill(path, brasilPathColors[brasilIndex]);
     }
 
     if (keepBrasilColorido || !brasilColor) {

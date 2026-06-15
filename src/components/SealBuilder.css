@@ -99,6 +99,11 @@
   min-width: 0;
 }
 
+.color-mode-control {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .segmented-control button,
 .variant-grid button {
   min-height: 42px;
@@ -151,6 +156,12 @@
 .split-color-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.colorido-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -412,6 +423,8 @@
 
   .control-row,
   .split-color-grid,
+  .colorido-grid,
+  .color-mode-control,
   .scale-options {
     grid-template-columns: 1fr;
   }

@@ -1,4 +1,4 @@
-import { buildSealUrl } from '../lib/seal';
+import { DEFAULT_BRASIL_LETTER_COLORS, buildSealUrl } from '../lib/seal';
 import './Footer.css';
 
 const sealUrl = buildSealUrl({
@@ -9,6 +9,7 @@ const sealUrl = buildSealUrl({
   singleColor: '#232324',
   feitoColor: '#232324',
   brasilColor: '#009440',
+  ...DEFAULT_BRASIL_LETTER_COLORS,
 });
 
 export function Footer() {

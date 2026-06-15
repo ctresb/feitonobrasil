@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { buildSealUrl, type SealOptions } from '../lib/seal';
+import { DEFAULT_BRASIL_LETTER_COLORS, buildSealUrl, type SealOptions } from '../lib/seal';
 import './SealShowcase.css';
 
 const baseOptions: SealOptions = {
@@ -10,6 +10,7 @@ const baseOptions: SealOptions = {
   singleColor: '#232324',
   feitoColor: '#232324',
   brasilColor: '#009440',
+  ...DEFAULT_BRASIL_LETTER_COLORS,
 };
 
 const seals: Array<{ label: string; detail: string; options: SealOptions; dark?: boolean }> = [

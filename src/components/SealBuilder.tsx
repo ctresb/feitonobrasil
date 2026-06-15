@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
+  DEFAULT_BRASIL_LETTER_COLORS,
   LANGUAGE_OPTIONS,
   SCALE_OPTIONS,
   VARIANT_OPTIONS,
@@ -26,12 +27,24 @@ const DEFAULT_OPTIONS: SealOptions = {
   singleColor: '#232324',
   feitoColor: '#232324',
   brasilColor: '#009440',
+  ...DEFAULT_BRASIL_LETTER_COLORS,
 };
 
 const colorModes: Array<{ value: ColorMode; label: string }> = [
   { value: 'variant', label: 'Variação' },
   { value: 'single', label: 'Cor única' },
   { value: 'split', label: 'Duas cores' },
+  { value: 'colorido', label: 'Colorido' },
+];
+
+const coloridoFields: Array<{ key: keyof SealOptions; label: string }> = [
+  { key: 'feitoColor', label: 'Feito no' },
+  { key: 'brasilBColor', label: 'B' },
+  { key: 'brasilRColor', label: 'r' },
+  { key: 'brasilAColor', label: 'a' },
+  { key: 'brasilSColor', label: 's' },
+  { key: 'brasilIColor', label: 'I' },
+  { key: 'brasilLColor', label: 'l' },
 ];
 
 const snippetTabs: Array<{ value: SnippetKind; label: string }> = [
@@ -149,7 +162,7 @@ export function SealBuilder() {
 
             <div className="control-row">
               <span>Cor</span>
-              <div className="segmented-control">
+              <div className="segmented-control color-mode-control">
                 {colorModes.map((mode) => (
                   <button
                     type="button"
@@ -211,6 +224,22 @@ export function SealBuilder() {
                   />
                   <b>{options.brasilColor}</b>
                 </label>
+              </div>
+            ) : null}
+
+            {options.colorMode === 'colorido' ? (
+              <div className="colorido-grid">
+                {coloridoFields.map((field) => (
+                  <label className="color-field" key={field.key}>
+                    <span>{field.label}</span>
+                    <input
+                      type="color"
+                      value={options[field.key] as string}
+                      onChange={(event) => updateOptions({ [field.key]: event.target.value })}
+                    />
+                    <b>{options[field.key] as string}</b>
+                  </label>
+                ))}
               </div>
             ) : null}
 

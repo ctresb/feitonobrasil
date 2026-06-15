@@ -1,5 +1,5 @@
 import type { ColorMode, SealLanguage, SealOptions, SealScale, SealVariant } from '../../src/lib/seal';
-import { getSealAssetPath, normalizeHexColor } from '../../src/lib/seal';
+import { DEFAULT_BRASIL_LETTER_COLORS, getSealAssetPath, normalizeHexColor } from '../../src/lib/seal';
 import { recolorSealSvg } from '../../src/lib/sealSvg';
 
 type AssetsBinding = {
@@ -21,6 +21,7 @@ const DEFAULT_OPTIONS: SealOptions = {
   singleColor: '#232324',
   feitoColor: '#232324',
   brasilColor: '#009440',
+  ...DEFAULT_BRASIL_LETTER_COLORS,
 };
 
 function parseLanguage(value: string | null): SealLanguage | null {
@@ -144,10 +145,26 @@ function parseRequestOptions(request: Request): SealOptions {
   const singleColor = getFirstParam(url, ['color', 'cor']);
   const feitoColor = getFirstParam(url, ['feito', 'made', 'top']);
   const brasilColor = getFirstParam(url, ['brasil', 'brazil', 'bottom']);
+  const brasilBColor = url.searchParams.get('b');
+  const brasilRColor = url.searchParams.get('r');
+  const brasilAColor = url.searchParams.get('a');
+  const brasilSColor = url.searchParams.get('s');
+  const brasilIColor = url.searchParams.get('i');
+  const brasilLColor = url.searchParams.get('l');
+  const hasBrasilLetterColors = Boolean(brasilBColor || brasilRColor || brasilAColor || brasilSColor || brasilIColor || brasilLColor);
 
   let colorMode: ColorMode = options.variant === 'custom' ? 'split' : 'variant';
 
-  if (singleColor) {
+  if (hasBrasilLetterColors) {
+    colorMode = 'colorido';
+    options.feitoColor = normalizeHexColor(feitoColor ?? DEFAULT_OPTIONS.feitoColor, DEFAULT_OPTIONS.feitoColor);
+    options.brasilBColor = normalizeHexColor(brasilBColor ?? DEFAULT_OPTIONS.brasilBColor, DEFAULT_OPTIONS.brasilBColor);
+    options.brasilRColor = normalizeHexColor(brasilRColor ?? DEFAULT_OPTIONS.brasilRColor, DEFAULT_OPTIONS.brasilRColor);
+    options.brasilAColor = normalizeHexColor(brasilAColor ?? DEFAULT_OPTIONS.brasilAColor, DEFAULT_OPTIONS.brasilAColor);
+    options.brasilSColor = normalizeHexColor(brasilSColor ?? DEFAULT_OPTIONS.brasilSColor, DEFAULT_OPTIONS.brasilSColor);
+    options.brasilIColor = normalizeHexColor(brasilIColor ?? DEFAULT_OPTIONS.brasilIColor, DEFAULT_OPTIONS.brasilIColor);
+    options.brasilLColor = normalizeHexColor(brasilLColor ?? DEFAULT_OPTIONS.brasilLColor, DEFAULT_OPTIONS.brasilLColor);
+  } else if (singleColor) {
     colorMode = 'single';
     options.singleColor = normalizeHexColor(singleColor, DEFAULT_OPTIONS.singleColor);
   } else if (feitoColor || brasilColor) {

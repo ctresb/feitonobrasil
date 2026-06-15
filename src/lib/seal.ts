@@ -9,7 +9,7 @@ export type SealVariant =
   | 'amarelo'
   | 'custom';
 export type SealScale = 0.5 | 1 | 2 | 3;
-export type ColorMode = 'variant' | 'single' | 'split';
+export type ColorMode = 'variant' | 'single' | 'split' | 'colorido';
 
 export type SealOptions = {
   language: SealLanguage;
@@ -19,6 +19,12 @@ export type SealOptions = {
   singleColor: string;
   feitoColor: string;
   brasilColor: string;
+  brasilBColor: string;
+  brasilRColor: string;
+  brasilAColor: string;
+  brasilSColor: string;
+  brasilIColor: string;
+  brasilLColor: string;
 };
 
 export type SnippetKind = 'markdown' | 'html' | 'readme' | 'picture' | 'react' | 'typescript' | 'javascript' | 'iframe';
@@ -92,30 +98,71 @@ export function normalizeHexColor(value: string, fallback: string) {
   return fallback;
 }
 
-export function resolveSealColors(options: Pick<SealOptions, 'variant' | 'colorMode' | 'singleColor' | 'feitoColor' | 'brasilColor'>) {
+export const DEFAULT_BRASIL_LETTER_COLORS = {
+  brasilBColor: '#009440',
+  brasilRColor: '#ffcb00',
+  brasilAColor: '#302681',
+  brasilSColor: '#ffcb00',
+  brasilIColor: '#009440',
+  brasilLColor: '#009440',
+};
+
+export function resolveSealColors(
+  options: Pick<
+    SealOptions,
+    | 'variant'
+    | 'colorMode'
+    | 'singleColor'
+    | 'feitoColor'
+    | 'brasilColor'
+    | 'brasilBColor'
+    | 'brasilRColor'
+    | 'brasilAColor'
+    | 'brasilSColor'
+    | 'brasilIColor'
+    | 'brasilLColor'
+  >,
+) {
   if (options.colorMode === 'single') {
     const color = normalizeHexColor(options.singleColor, '#232324');
-    return { feitoColor: color, brasilColor: color, keepBrasilColorido: false };
+    return { feitoColor: color, brasilColor: color, brasilLetterColors: null, keepBrasilColorido: false };
   }
 
   if (options.colorMode === 'split') {
     return {
       feitoColor: normalizeHexColor(options.feitoColor, '#232324'),
       brasilColor: normalizeHexColor(options.brasilColor, '#009440'),
+      brasilLetterColors: null,
+      keepBrasilColorido: false,
+    };
+  }
+
+  if (options.colorMode === 'colorido') {
+    return {
+      feitoColor: normalizeHexColor(options.feitoColor, '#232324'),
+      brasilColor: null,
+      brasilLetterColors: {
+        b: normalizeHexColor(options.brasilBColor, DEFAULT_BRASIL_LETTER_COLORS.brasilBColor),
+        r: normalizeHexColor(options.brasilRColor, DEFAULT_BRASIL_LETTER_COLORS.brasilRColor),
+        a: normalizeHexColor(options.brasilAColor, DEFAULT_BRASIL_LETTER_COLORS.brasilAColor),
+        s: normalizeHexColor(options.brasilSColor, DEFAULT_BRASIL_LETTER_COLORS.brasilSColor),
+        i: normalizeHexColor(options.brasilIColor, DEFAULT_BRASIL_LETTER_COLORS.brasilIColor),
+        l: normalizeHexColor(options.brasilLColor, DEFAULT_BRASIL_LETTER_COLORS.brasilLColor),
+      },
       keepBrasilColorido: false,
     };
   }
 
   if (options.variant === 'branco-colorido') {
-    return { feitoColor: '#ffffff', brasilColor: null, keepBrasilColorido: true };
+    return { feitoColor: '#ffffff', brasilColor: null, brasilLetterColors: null, keepBrasilColorido: true };
   }
 
   if (options.variant === 'colorido') {
-    return { feitoColor: '#232324', brasilColor: null, keepBrasilColorido: true };
+    return { feitoColor: '#232324', brasilColor: null, brasilLetterColors: null, keepBrasilColorido: true };
   }
 
   const solidColor = SOLID_VARIANT_COLORS[options.variant] ?? '#232324';
-  return { feitoColor: solidColor, brasilColor: solidColor, keepBrasilColorido: false };
+  return { feitoColor: solidColor, brasilColor: solidColor, brasilLetterColors: null, keepBrasilColorido: false };
 }
 
 export function buildSealUrl(options: SealOptions, baseUrl = SEAL_BASE_URL) {
@@ -130,6 +177,16 @@ export function buildSealUrl(options: SealOptions, baseUrl = SEAL_BASE_URL) {
   if (options.colorMode === 'split') {
     url.searchParams.set('feito', normalizeHexColor(options.feitoColor, '#232324'));
     url.searchParams.set('brasil', normalizeHexColor(options.brasilColor, '#009440'));
+  }
+
+  if (options.colorMode === 'colorido') {
+    url.searchParams.set('feito', normalizeHexColor(options.feitoColor, '#232324'));
+    url.searchParams.set('b', normalizeHexColor(options.brasilBColor, DEFAULT_BRASIL_LETTER_COLORS.brasilBColor));
+    url.searchParams.set('r', normalizeHexColor(options.brasilRColor, DEFAULT_BRASIL_LETTER_COLORS.brasilRColor));
+    url.searchParams.set('a', normalizeHexColor(options.brasilAColor, DEFAULT_BRASIL_LETTER_COLORS.brasilAColor));
+    url.searchParams.set('s', normalizeHexColor(options.brasilSColor, DEFAULT_BRASIL_LETTER_COLORS.brasilSColor));
+    url.searchParams.set('i', normalizeHexColor(options.brasilIColor, DEFAULT_BRASIL_LETTER_COLORS.brasilIColor));
+    url.searchParams.set('l', normalizeHexColor(options.brasilLColor, DEFAULT_BRASIL_LETTER_COLORS.brasilLColor));
   }
 
   return url.toString();

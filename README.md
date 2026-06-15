@@ -170,4 +170,4 @@ Quando fizer sentido: adoção pública, envio voluntário de projetos e um espa
 
 ## Licença
 
-Ainda não há arquivo de licença neste repo.
+MIT. Veja [`LICENSE`](LICENSE).

@@ -7,6 +7,7 @@ import {
   getSealAlt,
   getSealAssetPath,
   getSnippet,
+  normalizeHexColor,
   type ColorMode,
   type PictureFallback,
   type SealOptions,
@@ -90,6 +91,16 @@ export function SealBuilder() {
   );
   const sealUrl = useMemo(() => buildSealUrl(options), [options]);
 
+  const previewBg = useMemo(() => {
+    if (options.colorMode === 'variant' && (options.variant === 'branco' || options.variant === 'branco-colorido')) {
+      return '#0d0d0e';
+    }
+    if (options.colorMode === 'single' && normalizeHexColor(options.singleColor, '') === '#ffffff') {
+      return '#0d0d0e';
+    }
+    return undefined;
+  }, [options.colorMode, options.variant, options.singleColor]);
+
   function updateOptions(patch: Partial<SealOptions>) {
     setOptions((current) => ({ ...current, ...patch }));
   }
@@ -114,7 +125,7 @@ export function SealBuilder() {
 
       <div className="builder-layout">
         <div className="builder-left">
-          <div className="builder-preview" aria-label="Preview do selo">
+          <div className="builder-preview" style={{ background: previewBg }} aria-label="Preview do selo">
             <img src={previewSrc} alt={getSealAlt(options.language)} />
             <span>{sealUrl}</span>
           </div>

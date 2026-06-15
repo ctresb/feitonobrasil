@@ -42,6 +42,7 @@
   border-radius: 28px;
   background: var(--br-white);
   box-shadow: 8px 8px 0 rgba(35, 35, 36, 0.3);
+  transition: background 320ms ease;
 }
 
 .builder-preview img {

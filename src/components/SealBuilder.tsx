@@ -37,13 +37,12 @@ const colorModes: Array<{ value: ColorMode; label: string }> = [
   { value: 'colorido', label: 'Colorido' },
 ];
 
-const coloridoFields: Array<{ key: keyof SealOptions; label: string }> = [
-  { key: 'feitoColor', label: 'Feito no' },
+const brasilLetterFields: Array<{ key: keyof SealOptions; label: string }> = [
   { key: 'brasilBColor', label: 'B' },
   { key: 'brasilRColor', label: 'r' },
   { key: 'brasilAColor', label: 'a' },
   { key: 'brasilSColor', label: 's' },
-  { key: 'brasilIColor', label: 'I' },
+  { key: 'brasilIColor', label: 'i' },
   { key: 'brasilLColor', label: 'l' },
 ];
 
@@ -228,18 +227,47 @@ export function SealBuilder() {
             ) : null}
 
             {options.colorMode === 'colorido' ? (
-              <div className="colorido-grid">
-                {coloridoFields.map((field) => (
-                  <label className="color-field" key={field.key}>
-                    <span>{field.label}</span>
-                    <input
-                      type="color"
-                      value={options[field.key] as string}
-                      onChange={(event) => updateOptions({ [field.key]: event.target.value })}
-                    />
-                    <b>{options[field.key] as string}</b>
-                  </label>
-                ))}
+              <div className="colorido-panel" aria-label="Cores do selo colorido">
+                <div className="colorido-panel-head">
+                  <div>
+                    <strong>Colorido editável</strong>
+                    <span>Troque a frase e cada letra sem perder o desenho do selo.</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => updateOptions({ feitoColor: DEFAULT_OPTIONS.feitoColor, ...DEFAULT_BRASIL_LETTER_COLORS })}
+                  >
+                    Restaurar padrão
+                  </button>
+                </div>
+
+                <label className="feito-color-card">
+                  <span>Feito no</span>
+                  <input
+                    type="color"
+                    value={options.feitoColor}
+                    onChange={(event) => updateOptions({ feitoColor: event.target.value })}
+                  />
+                  <b>{options.feitoColor}</b>
+                </label>
+
+                <div className="brasil-letter-editor" aria-label="Cores da palavra Brasil">
+                  <span className="brasil-letter-caption">Brasil</span>
+                  <div className="brasil-letter-strip">
+                    {brasilLetterFields.map((field) => (
+                      <label className="brasil-letter-field" key={field.key}>
+                        <input
+                          type="color"
+                          value={options[field.key] as string}
+                          aria-label={`Cor da letra ${field.label}`}
+                          onChange={(event) => updateOptions({ [field.key]: event.target.value })}
+                        />
+                        <span style={{ color: options[field.key] as string }}>{field.label}</span>
+                        <b>{options[field.key] as string}</b>
+                      </label>
+                    ))}
+                  </div>
+                </div>
               </div>
             ) : null}
 

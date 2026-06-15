@@ -53,10 +53,7 @@ export function SealBuilder() {
   const [activeSnippet, setActiveSnippet] = useState<SnippetKind>('html');
   const [baseSvg, setBaseSvg] = useState('');
   const [copyState, setCopyState] = useState<'idle' | 'success' | 'error'>('idle');
-  const [darkOptions, setDarkOptions] = useState<SealOptions>({
-    ...DEFAULT_OPTIONS,
-    variant: 'branco-colorido',
-  });
+  const [darkVariant, setDarkVariant] = useState<SealVariant>('branco-colorido');
   const [pictureFallback, setPictureFallback] = useState<PictureFallback>('light');
 
   useEffect(() => {
@@ -78,9 +75,18 @@ export function SealBuilder() {
     return svgDataUrl(recolorSealSvg(baseSvg, options));
   }, [baseSvg, options]);
 
+  const pictureDarkOptions = useMemo<SealOptions>(
+    () => ({
+      ...options,
+      variant: darkVariant,
+      colorMode: 'variant',
+    }),
+    [options, darkVariant],
+  );
+
   const snippet = useMemo(
-    () => getSnippet(activeSnippet, options, darkOptions, pictureFallback),
-    [activeSnippet, options, darkOptions, pictureFallback],
+    () => getSnippet(activeSnippet, options, pictureDarkOptions, pictureFallback),
+    [activeSnippet, options, pictureDarkOptions, pictureFallback],
   );
   const sealUrl = useMemo(() => buildSealUrl(options), [options]);
 
@@ -206,8 +212,8 @@ export function SealBuilder() {
                       <button
                         type="button"
                         key={variant.value}
-                        aria-pressed={darkOptions.variant === variant.value}
-                        onClick={() => setDarkOptions({ ...darkOptions, variant: variant.value as SealVariant, colorMode: 'variant' })}
+                        aria-pressed={darkVariant === variant.value}
+                        onClick={() => setDarkVariant(variant.value as SealVariant)}
                       >
                         {variant.label}
                       </button>

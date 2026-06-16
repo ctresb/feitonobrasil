@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
+  DEFAULT_BRASIL_LETTER_COLORS,
   LANGUAGE_OPTIONS,
   SCALE_OPTIONS,
+  STYLE_OPTIONS,
   VARIANT_OPTIONS,
   buildSealUrl,
   getSealAlt,
@@ -21,12 +23,14 @@ import './SealBuilder.css';
 
 const DEFAULT_OPTIONS: SealOptions = {
   language: 'pt-br',
+  style: 'divertido',
   variant: 'colorido',
   scale: 1,
   colorMode: 'variant',
   singleColor: '#232324',
   feitoColor: '#232324',
   brasilColor: '#009440',
+  ...DEFAULT_BRASIL_LETTER_COLORS,
   componentType: 'seal',
 };
 
@@ -34,6 +38,16 @@ const colorModes: Array<{ value: ColorMode; label: string }> = [
   { value: 'variant', label: 'Variação' },
   { value: 'single', label: 'Cor única' },
   { value: 'split', label: 'Duas cores' },
+  { value: 'colorido', label: 'Colorido' },
+];
+
+const brasilLetterFields: Array<{ key: keyof SealOptions; label: string }> = [
+  { key: 'brasilBColor', label: 'B' },
+  { key: 'brasilRColor', label: 'r' },
+  { key: 'brasilAColor', label: 'a' },
+  { key: 'brasilSColor', label: 's' },
+  { key: 'brasilIColor', label: 'i' },
+  { key: 'brasilLColor', label: 'l' },
 ];
 
 const snippetTabs: Array<{ value: SnippetKind; label: string }> = [
@@ -53,7 +67,7 @@ function svgDataUrl(svg: string) {
 
 export function SealBuilder() {
   const [options, setOptions] = useState<SealOptions>(DEFAULT_OPTIONS);
-  const [activeSnippet, setActiveSnippet] = useState<SnippetKind>('html');
+  const [activeSnippet, setActiveSnippet] = useState<SnippetKind>('readme');
   const [baseSvg, setBaseSvg] = useState('');
   const [copyState, setCopyState] = useState<'idle' | 'success' | 'error'>('idle');
   const [darkVariant, setDarkVariant] = useState<SealVariant>('branco-colorido');
@@ -62,13 +76,13 @@ export function SealBuilder() {
   useEffect(() => {
     const controller = new AbortController();
 
-    fetch(getSealAssetPath(options.language), { signal: controller.signal })
+    fetch(getSealAssetPath(options.language, options.style), { signal: controller.signal })
       .then((response) => response.text())
       .then(setBaseSvg)
       .catch(() => setBaseSvg(''));
 
     return () => controller.abort();
-  }, [options.language]);
+  }, [options.language, options.style]);
 
   const previewSrc = useMemo(() => {
     if (options.componentType === 'badge') {
@@ -137,6 +151,20 @@ export function SealBuilder() {
           </div>
 
           <div className="builder-controls" aria-label="Controles do selo">
+            <div className="style-tabs" role="tablist" aria-label="Estilo do selo">
+              {STYLE_OPTIONS.map((item) => (
+                <button
+                  type="button"
+                  role="tab"
+                  key={item.value}
+                  aria-selected={options.style === item.value}
+                  onClick={() => updateOptions({ style: item.value })}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
             <div className="control-row">
               <span>Modelo</span>
               <div className="segmented-control">
@@ -175,7 +203,7 @@ export function SealBuilder() {
 
             <div className="control-row">
               <span>Cor</span>
-              <div className="segmented-control">
+              <div className="segmented-control color-mode-control">
                 {colorModes.map((mode) => (
                   <button
                     type="button"
@@ -237,6 +265,47 @@ export function SealBuilder() {
                   />
                   <b>{options.brasilColor}</b>
                 </label>
+              </div>
+            ) : null}
+
+            {options.colorMode === 'colorido' ? (
+              <div className="colorido-panel" aria-label="Cores do selo colorido">
+                <div className="colorido-panel-head">
+                  <strong>Colorido editável</strong>
+                  <button
+                    type="button"
+                    onClick={() => updateOptions({ feitoColor: DEFAULT_OPTIONS.feitoColor, ...DEFAULT_BRASIL_LETTER_COLORS })}
+                  >
+                    Restaurar
+                  </button>
+                </div>
+
+                <label className="feito-color-card">
+                  <span>feito no</span>
+                  <input
+                    type="color"
+                    value={options.feitoColor}
+                    onChange={(event) => updateOptions({ feitoColor: event.target.value })}
+                  />
+                  <b>{options.feitoColor}</b>
+                </label>
+
+                <div className="brasil-word-card" aria-label="Cores da palavra Brasil">
+                  <span>Brasil</span>
+                  <div className="brasil-word-editor">
+                    {brasilLetterFields.map((field) => (
+                      <label className="brasil-letter-chip" key={field.key}>
+                        <span style={{ color: options[field.key] as string }}>{field.label}</span>
+                        <input
+                          type="color"
+                          value={options[field.key] as string}
+                          aria-label={`Cor da letra ${field.label}`}
+                          onChange={(event) => updateOptions({ [field.key]: event.target.value })}
+                        />
+                      </label>
+                    ))}
+                  </div>
+                </div>
               </div>
             ) : null}
 
@@ -315,9 +384,7 @@ export function SealBuilder() {
             </div>
           </div>
 
-          <pre>
-            <code>{snippet}</code>
-          </pre>
+          <pre><code>{snippet}</code></pre>
           <div className="builder-code-bottom">
             <p aria-live="polite">{copyState === 'success' ? 'Código copiado.' : copyState === 'error' ? 'Copie manualmente.' : ' '}</p>
             <button className="copy-code-button" type="button" onClick={copySnippet}>

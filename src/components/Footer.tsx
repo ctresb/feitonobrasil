@@ -1,9 +1,22 @@
+import { DEFAULT_BRASIL_LETTER_COLORS, buildSealUrl } from '../lib/seal';
 import './Footer.css';
+
+const sealUrl = buildSealUrl({
+  language: 'pt-br',
+  style: 'divertido',
+  variant: 'branco',
+  scale: 1,
+  colorMode: 'variant',
+  singleColor: '#232324',
+  feitoColor: '#232324',
+  brasilColor: '#009440',
+  ...DEFAULT_BRASIL_LETTER_COLORS,
+});
 
 export function Footer() {
   return (
     <footer className="site-footer">
-      <img src="/selos/feitonobrasil_branco.svg" alt="Feito no Brasil" />
+      <img src={sealUrl} alt="Feito no Brasil" />
       <p>Um selo aberto para marcar projetos, repos e produtos digitais feitos no Brasil.</p>
       <a href="https://feitonobrasil.dev.br">feitonobrasil.dev.br</a>
       <a

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://feitonobrasil.dev.br/sitemap.xml

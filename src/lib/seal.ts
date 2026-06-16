@@ -88,6 +88,10 @@ export function getSealDimensions(scale: SealScale) {
   };
 }
 
+export function getSnippetDisplayHeight(scale: SealScale) {
+  return Math.round(56 * scale);
+}
+
 export function normalizeHexColor(value: string, fallback: string) {
   const trimmed = value.trim();
   const normalized = trimmed.startsWith('#') ? trimmed : `#${trimmed}`;
@@ -212,23 +216,20 @@ export function getSnippet(
 ) {
   const src = buildSealUrl(options);
   const alt = getSealAlt(options.language);
-  const { width, height } = getSealDimensions(options.scale);
+  const displayHeight = getSnippetDisplayHeight(options.scale);
+  const iframeWidth = Math.round((250 / 120) * displayHeight);
 
   if (kind === 'markdown') {
     return `[![${alt}](${src})](${SITE_URL})`;
   }
 
   if (kind === 'html') {
-    return `<a href="${SITE_URL}" aria-label="${alt}">
-  <img src="${src}" alt="${alt}" width="${width}" height="${height}" loading="lazy" />
-</a>`;
+    return `<a href="${SITE_URL}"><img src="${src}" alt="${alt}" height="${displayHeight}" loading="lazy"></a>`;
   }
 
   if (kind === 'readme') {
     return `<p align="center">
-  <a href="${SITE_URL}">
-    <img src="${src}" alt="${alt}" width="${width}" height="${height}" />
-  </a>
+  <a href="${SITE_URL}"><img src="${src}" alt="${alt}" height="${displayHeight}"></a>
 </p>`;
   }
 
@@ -245,7 +246,7 @@ export function getSnippet(
     return `<picture>
   <source media="(prefers-color-scheme: dark)" srcset="${darkSrc}">
   <source media="(prefers-color-scheme: light)" srcset="${lightSrc}">
-  <img alt="${alt}" src="${fallbackSrc}" width="${width}" height="${height}">
+  <img alt="${alt}" src="${fallbackSrc}" height="${displayHeight}" loading="lazy">
 </picture>`;
   }
 
@@ -253,7 +254,7 @@ export function getSnippet(
     return `export function FeitoNoBrasilSeal() {
   return (
     <a href="${SITE_URL}" aria-label="${alt}" target="_blank" rel="noreferrer">
-      <img src="${src}" alt="${alt}" width={${width}} height={${height}} loading="lazy" />
+      <img src="${src}" alt="${alt}" height={${displayHeight}} loading="lazy" />
     </a>
   );
 }`;
@@ -264,8 +265,7 @@ export function getSnippet(
   href: '${SITE_URL}',
   src: '${src}',
   alt: '${alt}',
-  width: ${width},
-  height: ${height},
+  height: ${displayHeight},
 } as const;`;
   }
 
@@ -277,8 +277,7 @@ seal.ariaLabel = '${alt}';
 const img = document.createElement('img');
 img.src = '${src}';
 img.alt = '${alt}';
-img.width = ${width};
-img.height = ${height};
+img.height = ${displayHeight};
 img.loading = 'lazy';
 
 seal.append(img);
@@ -288,8 +287,8 @@ document.querySelector('footer')?.append(seal);`;
   return `<iframe
   title="${alt}"
   src="${src}"
-  width="${width}"
-  height="${height}"
-  style="border:0;display:block"
+  width="${iframeWidth}"
+  height="${displayHeight}"
+  style="border:0;display:block;background:transparent"
 ></iframe>`;
 }

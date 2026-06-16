@@ -65,7 +65,7 @@ function svgDataUrl(svg: string) {
 
 export function SealBuilder() {
   const [options, setOptions] = useState<SealOptions>(DEFAULT_OPTIONS);
-  const [activeSnippet, setActiveSnippet] = useState<SnippetKind>('html');
+  const [activeSnippet, setActiveSnippet] = useState<SnippetKind>('readme');
   const [baseSvg, setBaseSvg] = useState('');
   const [copyState, setCopyState] = useState<'idle' | 'success' | 'error'>('idle');
   const [darkVariant, setDarkVariant] = useState<SealVariant>('branco-colorido');
@@ -269,14 +269,13 @@ export function SealBuilder() {
                   <div className="brasil-word-editor">
                     {brasilLetterFields.map((field) => (
                       <label className="brasil-letter-chip" key={field.key}>
+                        <span style={{ color: options[field.key] as string }}>{field.label}</span>
                         <input
                           type="color"
                           value={options[field.key] as string}
                           aria-label={`Cor da letra ${field.label}`}
                           onChange={(event) => updateOptions({ [field.key]: event.target.value })}
                         />
-                        <span style={{ color: options[field.key] as string }}>{field.label}</span>
-                        <i style={{ backgroundColor: options[field.key] as string }} />
                       </label>
                     ))}
                   </div>
@@ -359,9 +358,7 @@ export function SealBuilder() {
             </div>
           </div>
 
-          <pre>
-            <code>{snippet}</code>
-          </pre>
+          <pre><code>{snippet}</code></pre>
           <div className="builder-code-bottom">
             <p aria-live="polite">{copyState === 'success' ? 'Código copiado.' : copyState === 'error' ? 'Copie manualmente.' : ' '}</p>
             <button className="copy-code-button" type="button" onClick={copySnippet}>

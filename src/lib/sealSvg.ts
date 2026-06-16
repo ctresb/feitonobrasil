@@ -22,13 +22,13 @@ function getPathStartX(path: string) {
 }
 
 function getBrasilLetterColors(paths: string[], colors: NonNullable<ReturnType<typeof resolveSealColors>['brasilLetterColors']>) {
-  const letterSequence = paths.length >= BRASIL_COLORIDO_PATH_SEQUENCE.length ? BRASIL_COLORIDO_PATH_SEQUENCE : BRASIL_LETTER_SEQUENCE;
+  const letterSequence = paths.length === BRASIL_COLORIDO_PATH_SEQUENCE.length ? BRASIL_COLORIDO_PATH_SEQUENCE : BRASIL_LETTER_SEQUENCE;
 
   return paths
     .map((path, index) => ({ index, x: getPathStartX(path) }))
     .sort((a, b) => a.x - b.x)
     .reduce<Record<number, string>>((map, path, index) => {
-      map[path.index] = colors[letterSequence[index] ?? 'l'];
+      map[path.index] = colors[letterSequence[index] ?? 'l'] ?? colors.l;
       return map;
     }, {});
 }

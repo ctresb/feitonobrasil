@@ -157,6 +157,12 @@ function parseRequestOptions(request: Request): SealOptions {
   }
 
   options.colorMode = colorMode;
+
+  const theme = getFirstParam(url, ['theme', 'tema']);
+  if (theme && theme.toLowerCase() === 'auto') {
+    options.autoTheme = true;
+  }
+
   return options;
 }
 

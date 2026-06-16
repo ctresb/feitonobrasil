@@ -19,6 +19,8 @@ export type SealOptions = {
   singleColor: string;
   feitoColor: string;
   brasilColor: string;
+  /** When true, the served SVG adapts its text to light/dark via prefers-color-scheme. */
+  autoTheme?: boolean;
 };
 
 export type SnippetKind = 'markdown' | 'html' | 'readme' | 'picture' | 'react' | 'typescript' | 'javascript' | 'iframe';
@@ -132,6 +134,10 @@ export function buildSealUrl(options: SealOptions, baseUrl = SEAL_BASE_URL) {
     url.searchParams.set('brasil', normalizeHexColor(options.brasilColor, '#009440'));
   }
 
+  if (options.autoTheme) {
+    url.searchParams.set('theme', 'auto');
+  }
+
   return url.toString();
 }
 
@@ -152,16 +158,12 @@ export function getSnippet(
   }
 
   if (kind === 'html') {
-    return `<a href="${SITE_URL}" aria-label="${alt}">
-  <img src="${src}" alt="${alt}" width="${width}" height="${height}" loading="lazy" />
-</a>`;
+    return `<a href="${SITE_URL}"><img src="${src}" alt="${alt}"></a>`;
   }
 
   if (kind === 'readme') {
     return `<p align="center">
-  <a href="${SITE_URL}">
-    <img src="${src}" alt="${alt}" width="${width}" height="${height}" />
-  </a>
+  <a href="${SITE_URL}"><img src="${src}" alt="${alt}"></a>
 </p>`;
   }
 

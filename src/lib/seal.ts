@@ -1,4 +1,5 @@
 export type SealLanguage = 'pt-br' | 'en';
+export type SealStyle = 'divertido' | 'serio';
 export type SealVariant =
   | 'colorido'
   | 'branco-colorido'
@@ -9,16 +10,23 @@ export type SealVariant =
   | 'amarelo'
   | 'custom';
 export type SealScale = 0.5 | 1 | 2 | 3;
-export type ColorMode = 'variant' | 'single' | 'split';
+export type ColorMode = 'variant' | 'single' | 'split' | 'colorido';
 
 export type SealOptions = {
   language: SealLanguage;
+  style: SealStyle;
   variant: SealVariant;
   scale: SealScale;
   colorMode: ColorMode;
   singleColor: string;
   feitoColor: string;
   brasilColor: string;
+  brasilBColor: string;
+  brasilRColor: string;
+  brasilAColor: string;
+  brasilSColor: string;
+  brasilIColor: string;
+  brasilLColor: string;
   /** When true, the served SVG adapts its text to light/dark via prefers-color-scheme. */
   autoTheme?: boolean;
 };
@@ -31,6 +39,11 @@ export const SITE_URL = 'https://feitonobrasil.dev.br';
 export const LANGUAGE_OPTIONS: Array<{ value: SealLanguage; label: string; shortLabel: string }> = [
   { value: 'pt-br', label: 'Português', shortLabel: 'PT-BR' },
   { value: 'en', label: 'English', shortLabel: 'EN' },
+];
+
+export const STYLE_OPTIONS: Array<{ value: SealStyle; label: string }> = [
+  { value: 'divertido', label: 'Divertido' },
+  { value: 'serio', label: 'Sério' },
 ];
 
 export const SCALE_OPTIONS: Array<{ value: SealScale; label: string }> = [
@@ -62,10 +75,12 @@ export function getSealAlt(language: SealLanguage) {
   return language === 'en' ? 'Made in Brazil' : 'Feito no Brasil';
 }
 
-export function getSealAssetPath(language: SealLanguage) {
-  return language === 'en'
-    ? '/selos/madeinbrasil_preto_colorido.svg'
-    : '/selos/feitonobrasil_preto_colorido.svg';
+export function getSealAssetPath(language: SealLanguage, style: SealStyle = 'divertido') {
+  if (language === 'en') {
+    return style === 'serio' ? '/selos/madeinbrasil-serio.svg' : '/selos/madeinbrasil.svg';
+  }
+
+  return style === 'serio' ? '/selos/feitonobrasil-serio.svg' : '/selos/feitonobrasil.svg';
 }
 
 export function getSealDimensions(scale: SealScale) {
@@ -73,6 +88,10 @@ export function getSealDimensions(scale: SealScale) {
     width: Math.round(250 * scale),
     height: Math.round(120 * scale),
   };
+}
+
+export function getSnippetDisplayHeight(scale: SealScale) {
+  return Math.round(56 * scale);
 }
 
 export function normalizeHexColor(value: string, fallback: string) {
@@ -94,36 +113,78 @@ export function normalizeHexColor(value: string, fallback: string) {
   return fallback;
 }
 
-export function resolveSealColors(options: Pick<SealOptions, 'variant' | 'colorMode' | 'singleColor' | 'feitoColor' | 'brasilColor'>) {
+export const DEFAULT_BRASIL_LETTER_COLORS = {
+  brasilBColor: '#009440',
+  brasilRColor: '#ffcb00',
+  brasilAColor: '#302681',
+  brasilSColor: '#ffcb00',
+  brasilIColor: '#009440',
+  brasilLColor: '#009440',
+};
+
+export function resolveSealColors(
+  options: Pick<
+    SealOptions,
+    | 'variant'
+    | 'colorMode'
+    | 'singleColor'
+    | 'feitoColor'
+    | 'brasilColor'
+    | 'brasilBColor'
+    | 'brasilRColor'
+    | 'brasilAColor'
+    | 'brasilSColor'
+    | 'brasilIColor'
+    | 'brasilLColor'
+  >,
+) {
   if (options.colorMode === 'single') {
     const color = normalizeHexColor(options.singleColor, '#232324');
-    return { feitoColor: color, brasilColor: color, keepBrasilColorido: false };
+    return { feitoColor: color, brasilColor: color, brasilLetterColors: null, keepBrasilColorido: false };
   }
 
   if (options.colorMode === 'split') {
     return {
       feitoColor: normalizeHexColor(options.feitoColor, '#232324'),
       brasilColor: normalizeHexColor(options.brasilColor, '#009440'),
+      brasilLetterColors: null,
+      keepBrasilColorido: false,
+    };
+  }
+
+  if (options.colorMode === 'colorido') {
+    return {
+      feitoColor: normalizeHexColor(options.feitoColor, '#232324'),
+      brasilColor: null,
+      brasilLetterColors: {
+        b: normalizeHexColor(options.brasilBColor, DEFAULT_BRASIL_LETTER_COLORS.brasilBColor),
+        r: normalizeHexColor(options.brasilRColor, DEFAULT_BRASIL_LETTER_COLORS.brasilRColor),
+        a: normalizeHexColor(options.brasilAColor, DEFAULT_BRASIL_LETTER_COLORS.brasilAColor),
+        s: normalizeHexColor(options.brasilSColor, DEFAULT_BRASIL_LETTER_COLORS.brasilSColor),
+        i: normalizeHexColor(options.brasilIColor, DEFAULT_BRASIL_LETTER_COLORS.brasilIColor),
+        l: normalizeHexColor(options.brasilLColor, DEFAULT_BRASIL_LETTER_COLORS.brasilLColor),
+      },
       keepBrasilColorido: false,
     };
   }
 
   if (options.variant === 'branco-colorido') {
-    return { feitoColor: '#ffffff', brasilColor: null, keepBrasilColorido: true };
+    return { feitoColor: '#ffffff', brasilColor: null, brasilLetterColors: null, keepBrasilColorido: true };
   }
 
   if (options.variant === 'colorido') {
-    return { feitoColor: '#232324', brasilColor: null, keepBrasilColorido: true };
+    return { feitoColor: '#232324', brasilColor: null, brasilLetterColors: null, keepBrasilColorido: true };
   }
 
   const solidColor = SOLID_VARIANT_COLORS[options.variant] ?? '#232324';
-  return { feitoColor: solidColor, brasilColor: solidColor, keepBrasilColorido: false };
+  return { feitoColor: solidColor, brasilColor: solidColor, brasilLetterColors: null, keepBrasilColorido: false };
 }
 
 export function buildSealUrl(options: SealOptions, baseUrl = SEAL_BASE_URL) {
   const variant = options.colorMode === 'variant' ? options.variant : 'custom';
   const scaleLabel = `${options.scale}x`;
-  const url = new URL(`/${options.language}/${variant}/${scaleLabel}.svg`, baseUrl);
+  const stylePath = options.style === 'serio' ? '/serio' : '';
+  const url = new URL(`/${options.language}${stylePath}/${variant}/${scaleLabel}.svg`, baseUrl);
 
   if (options.colorMode === 'single') {
     url.searchParams.set('color', normalizeHexColor(options.singleColor, '#232324'));
@@ -132,6 +193,16 @@ export function buildSealUrl(options: SealOptions, baseUrl = SEAL_BASE_URL) {
   if (options.colorMode === 'split') {
     url.searchParams.set('feito', normalizeHexColor(options.feitoColor, '#232324'));
     url.searchParams.set('brasil', normalizeHexColor(options.brasilColor, '#009440'));
+  }
+
+  if (options.colorMode === 'colorido') {
+    url.searchParams.set('feito', normalizeHexColor(options.feitoColor, '#232324'));
+    url.searchParams.set('b', normalizeHexColor(options.brasilBColor, DEFAULT_BRASIL_LETTER_COLORS.brasilBColor));
+    url.searchParams.set('r', normalizeHexColor(options.brasilRColor, DEFAULT_BRASIL_LETTER_COLORS.brasilRColor));
+    url.searchParams.set('a', normalizeHexColor(options.brasilAColor, DEFAULT_BRASIL_LETTER_COLORS.brasilAColor));
+    url.searchParams.set('s', normalizeHexColor(options.brasilSColor, DEFAULT_BRASIL_LETTER_COLORS.brasilSColor));
+    url.searchParams.set('i', normalizeHexColor(options.brasilIColor, DEFAULT_BRASIL_LETTER_COLORS.brasilIColor));
+    url.searchParams.set('l', normalizeHexColor(options.brasilLColor, DEFAULT_BRASIL_LETTER_COLORS.brasilLColor));
   }
 
   if (options.autoTheme) {
@@ -151,19 +222,20 @@ export function getSnippet(
 ) {
   const src = buildSealUrl(options);
   const alt = getSealAlt(options.language);
-  const { width, height } = getSealDimensions(options.scale);
+  const displayHeight = getSnippetDisplayHeight(options.scale);
+  const iframeWidth = Math.round((250 / 120) * displayHeight);
 
   if (kind === 'markdown') {
     return `[![${alt}](${src})](${SITE_URL})`;
   }
 
   if (kind === 'html') {
-    return `<a href="${SITE_URL}"><img src="${src}" alt="${alt}"></a>`;
+    return `<a href="${SITE_URL}"><img src="${src}" alt="${alt}" height="${displayHeight}" loading="lazy"></a>`;
   }
 
   if (kind === 'readme') {
     return `<p align="center">
-  <a href="${SITE_URL}"><img src="${src}" alt="${alt}"></a>
+  <a href="${SITE_URL}"><img src="${src}" alt="${alt}" height="${displayHeight}"></a>
 </p>`;
   }
 
@@ -180,7 +252,7 @@ export function getSnippet(
     return `<picture>
   <source media="(prefers-color-scheme: dark)" srcset="${darkSrc}">
   <source media="(prefers-color-scheme: light)" srcset="${lightSrc}">
-  <img alt="${alt}" src="${fallbackSrc}" width="${width}" height="${height}">
+  <img alt="${alt}" src="${fallbackSrc}" height="${displayHeight}" loading="lazy">
 </picture>`;
   }
 
@@ -188,7 +260,7 @@ export function getSnippet(
     return `export function FeitoNoBrasilSeal() {
   return (
     <a href="${SITE_URL}" aria-label="${alt}" target="_blank" rel="noreferrer">
-      <img src="${src}" alt="${alt}" width={${width}} height={${height}} loading="lazy" />
+      <img src="${src}" alt="${alt}" height={${displayHeight}} loading="lazy" />
     </a>
   );
 }`;
@@ -199,8 +271,7 @@ export function getSnippet(
   href: '${SITE_URL}',
   src: '${src}',
   alt: '${alt}',
-  width: ${width},
-  height: ${height},
+  height: ${displayHeight},
 } as const;`;
   }
 
@@ -212,8 +283,7 @@ seal.ariaLabel = '${alt}';
 const img = document.createElement('img');
 img.src = '${src}';
 img.alt = '${alt}';
-img.width = ${width};
-img.height = ${height};
+img.height = ${displayHeight};
 img.loading = 'lazy';
 
 seal.append(img);
@@ -223,8 +293,8 @@ document.querySelector('footer')?.append(seal);`;
   return `<iframe
   title="${alt}"
   src="${src}"
-  width="${width}"
-  height="${height}"
-  style="border:0;display:block"
+  width="${iframeWidth}"
+  height="${displayHeight}"
+  style="border:0;display:block;background:transparent"
 ></iframe>`;
 }

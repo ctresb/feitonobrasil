@@ -1,5 +1,5 @@
-import type { ColorMode, SealLanguage, SealOptions, SealScale, SealVariant } from '../../src/lib/seal';
-import { getSealAssetPath, normalizeHexColor } from '../../src/lib/seal';
+import type { ColorMode, SealLanguage, SealOptions, SealScale, SealStyle, SealVariant } from '../../src/lib/seal';
+import { DEFAULT_BRASIL_LETTER_COLORS, getSealAssetPath, normalizeHexColor } from '../../src/lib/seal';
 import { recolorSealSvg } from '../../src/lib/sealSvg';
 
 type AssetsBinding = {
@@ -11,16 +11,19 @@ type Env = {
 };
 
 const VARIANTS: SealVariant[] = ['colorido', 'branco-colorido', 'preto', 'branco', 'verde', 'azul', 'amarelo', 'custom'];
+const STYLES: SealStyle[] = ['divertido', 'serio'];
 const SCALES: SealScale[] = [0.5, 1, 2, 3];
 
 const DEFAULT_OPTIONS: SealOptions = {
   language: 'pt-br',
+  style: 'divertido',
   variant: 'colorido',
   scale: 1,
   colorMode: 'variant',
   singleColor: '#232324',
   feitoColor: '#232324',
   brasilColor: '#009440',
+  ...DEFAULT_BRASIL_LETTER_COLORS,
 };
 
 const ROBOTS_TXT = `User-agent: *
@@ -45,6 +48,24 @@ function parseLanguage(value: string | null): SealLanguage | null {
   }
 
   return null;
+}
+
+function parseStyle(value: string | null): SealStyle | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/_/g, '-').replace(/\.svg$/, '');
+
+  if (normalized === 'serio' || normalized === 'serious' || normalized === 'corp' || normalized === 'corporativo') {
+    return 'serio';
+  }
+
+  if (normalized === 'divertido' || normalized === 'fun' || normalized === 'original') {
+    return 'divertido';
+  }
+
+  return STYLES.includes(normalized as SealStyle) ? (normalized as SealStyle) : null;
 }
 
 function parseVariant(value: string | null): SealVariant | null {
@@ -89,7 +110,7 @@ function isKnownSealPath(request: Request) {
     return false;
   }
 
-  if (segments.length > 3) {
+  if (segments.length > 4) {
     return false;
   }
 
@@ -97,10 +118,27 @@ function isKnownSealPath(request: Request) {
     return false;
   }
 
-  const [first, second, third] = segments;
+  const [first, second, third, fourth] = segments;
   const pathLanguage = parseLanguage(first);
 
   if (pathLanguage) {
+    const pathStyle = parseStyle(second);
+    const variantCandidate = pathStyle ? third : second;
+    const scaleCandidate = pathStyle ? fourth : third;
+
+    if (scaleCandidate && !parseScale(scaleCandidate)) {
+      return false;
+    }
+
+    return Boolean(!variantCandidate || parseVariant(variantCandidate) || parseScale(variantCandidate));
+  }
+
+  const pathStyle = parseStyle(first);
+  if (pathStyle) {
+    if (fourth) {
+      return false;
+    }
+
     if (third && !parseScale(third)) {
       return false;
     }
@@ -123,15 +161,21 @@ function parseRequestOptions(request: Request): SealOptions {
   const url = new URL(request.url);
   const segments = getPathSegments(url);
   const options: SealOptions = { ...DEFAULT_OPTIONS };
-  const [first, second, third] = segments;
+  const [first, second, third, fourth] = segments;
 
   const pathLanguage = parseLanguage(first);
+  const pathStyle = pathLanguage ? parseStyle(second) : parseStyle(first);
+
   if (pathLanguage) {
     options.language = pathLanguage;
   }
 
-  const variantCandidate = pathLanguage ? second : first;
-  const scaleCandidate = pathLanguage ? third : second;
+  if (pathStyle) {
+    options.style = pathStyle;
+  }
+
+  const variantCandidate = pathLanguage ? (pathStyle ? third : second) : (pathStyle ? second : first);
+  const scaleCandidate = pathLanguage ? (pathStyle ? fourth : third) : (pathStyle ? third : second);
   const pathVariant = parseVariant(variantCandidate);
   const pathScale = parseScale(scaleCandidate) ?? parseScale(variantCandidate);
 
@@ -144,16 +188,33 @@ function parseRequestOptions(request: Request): SealOptions {
   }
 
   options.language = parseLanguage(getFirstParam(url, ['lang', 'language', 'idioma'])) ?? options.language;
+  options.style = parseStyle(getFirstParam(url, ['style', 'estilo'])) ?? options.style;
   options.variant = parseVariant(url.searchParams.get('variant')) ?? options.variant;
   options.scale = parseScale(getFirstParam(url, ['scale', 'size', 'tamanho'])) ?? options.scale;
 
   const singleColor = getFirstParam(url, ['color', 'cor']);
   const feitoColor = getFirstParam(url, ['feito', 'made', 'top']);
   const brasilColor = getFirstParam(url, ['brasil', 'brazil', 'bottom']);
+  const brasilBColor = url.searchParams.get('b');
+  const brasilRColor = url.searchParams.get('r');
+  const brasilAColor = url.searchParams.get('a');
+  const brasilSColor = url.searchParams.get('s');
+  const brasilIColor = url.searchParams.get('i');
+  const brasilLColor = url.searchParams.get('l');
+  const hasBrasilLetterColors = Boolean(brasilBColor || brasilRColor || brasilAColor || brasilSColor || brasilIColor || brasilLColor);
 
   let colorMode: ColorMode = options.variant === 'custom' ? 'split' : 'variant';
 
-  if (singleColor) {
+  if (hasBrasilLetterColors) {
+    colorMode = 'colorido';
+    options.feitoColor = normalizeHexColor(feitoColor ?? DEFAULT_OPTIONS.feitoColor, DEFAULT_OPTIONS.feitoColor);
+    options.brasilBColor = normalizeHexColor(brasilBColor ?? DEFAULT_OPTIONS.brasilBColor, DEFAULT_OPTIONS.brasilBColor);
+    options.brasilRColor = normalizeHexColor(brasilRColor ?? DEFAULT_OPTIONS.brasilRColor, DEFAULT_OPTIONS.brasilRColor);
+    options.brasilAColor = normalizeHexColor(brasilAColor ?? DEFAULT_OPTIONS.brasilAColor, DEFAULT_OPTIONS.brasilAColor);
+    options.brasilSColor = normalizeHexColor(brasilSColor ?? DEFAULT_OPTIONS.brasilSColor, DEFAULT_OPTIONS.brasilSColor);
+    options.brasilIColor = normalizeHexColor(brasilIColor ?? DEFAULT_OPTIONS.brasilIColor, DEFAULT_OPTIONS.brasilIColor);
+    options.brasilLColor = normalizeHexColor(brasilLColor ?? DEFAULT_OPTIONS.brasilLColor, DEFAULT_OPTIONS.brasilLColor);
+  } else if (singleColor) {
     colorMode = 'single';
     options.singleColor = normalizeHexColor(singleColor, DEFAULT_OPTIONS.singleColor);
   } else if (feitoColor || brasilColor) {
@@ -172,8 +233,36 @@ function parseRequestOptions(request: Request): SealOptions {
   return options;
 }
 
-async function loadBaseSvg(request: Request, env: Env, language: SealLanguage) {
-  const assetUrl = new URL(getSealAssetPath(language), request.url);
+function parseLegacyAssetOptions(url: URL): SealOptions | null {
+  const segments = getPathSegments(url);
+
+  if (segments.length !== 2 || segments[0] !== 'selos') {
+    return null;
+  }
+
+  const normalized = segments[1].toLowerCase().replace(/\.svg$/, '');
+  const match = /^(feitonobrasil|madeinbrasil)_(.+)$/.exec(normalized);
+
+  if (!match) {
+    return null;
+  }
+
+  const variantName = match[2] === 'preto_colorido' ? 'colorido' : match[2];
+  const variant = parseVariant(variantName);
+
+  if (!variant) {
+    return null;
+  }
+
+  return {
+    ...DEFAULT_OPTIONS,
+    language: match[1] === 'madeinbrasil' ? 'en' : 'pt-br',
+    variant,
+  };
+}
+
+async function loadBaseSvg(request: Request, env: Env, language: SealLanguage, style: SealStyle) {
+  const assetUrl = new URL(getSealAssetPath(language, style), request.url);
   const response = await env.ASSETS.fetch(assetUrl);
 
   if (!response.ok) {
@@ -238,12 +327,14 @@ export default {
         });
       }
 
-      if (!isKnownSealPath(request)) {
+      const legacyOptions = parseLegacyAssetOptions(url);
+
+      if (!legacyOptions && !isKnownSealPath(request)) {
         return env.ASSETS.fetch(request);
       }
 
-      const options = parseRequestOptions(request);
-      const baseSvg = await loadBaseSvg(request, env, options.language);
+      const options = legacyOptions ?? parseRequestOptions(request);
+      const baseSvg = await loadBaseSvg(request, env, options.language, options.style);
       const svg = recolorSealSvg(baseSvg, options);
       return request.method === 'HEAD' ? svgResponse('') : svgResponse(svg);
     } catch (error) {

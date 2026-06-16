@@ -1,9 +1,7 @@
 # Feito no Brasil
 
 <p align="center">
-  <a href="https://feitonobrasil.dev.br">
-    <img src="https://selo.feitonobrasil.dev.br/pt-br/colorido/1x.svg" alt="Feito no Brasil" width="250" height="120" />
-  </a>
+  <a href="https://feitonobrasil.dev.br"><img src="https://selo.feitonobrasil.dev.br/pt-br/colorido/1x.svg" alt="Feito no Brasil" height="56"></a>
 </p>
 
 Selo aberto para devs brasileiros marcarem READMEs, sites, bibliotecas e produtos digitais feitos daqui.
@@ -22,13 +20,7 @@ HTML:
 
 ```html
 <a href="https://feitonobrasil.dev.br" aria-label="Feito no Brasil">
-  <img
-    src="https://selo.feitonobrasil.dev.br/pt-br/colorido/1x.svg"
-    alt="Feito no Brasil"
-    width="250"
-    height="120"
-    loading="lazy"
-  />
+  <img src="https://selo.feitonobrasil.dev.br/pt-br/colorido/1x.svg" alt="Feito no Brasil" height="56" loading="lazy">
 </a>
 ```
 
@@ -36,9 +28,7 @@ README centralizado:
 
 ```html
 <p align="center">
-  <a href="https://feitonobrasil.dev.br">
-    <img src="https://selo.feitonobrasil.dev.br/pt-br/colorido/1x.svg" alt="Feito no Brasil" width="250" height="120" />
-  </a>
+  <a href="https://feitonobrasil.dev.br"><img src="https://selo.feitonobrasil.dev.br/pt-br/colorido/1x.svg" alt="Feito no Brasil" height="56"></a>
 </p>
 ```
 

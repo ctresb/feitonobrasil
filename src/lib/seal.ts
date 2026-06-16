@@ -1,3 +1,5 @@
+import { getTextWidth } from './badge';
+
 export type SealLanguage = 'pt-br' | 'en';
 export type SealStyle = 'divertido' | 'serio';
 export type SealVariant =
@@ -21,6 +23,7 @@ export type SealOptions = {
   singleColor: string;
   feitoColor: string;
   brasilColor: string;
+  componentType?: 'seal' | 'badge';
   brasilBColor: string;
   brasilRColor: string;
   brasilAColor: string;
@@ -71,7 +74,10 @@ export const SOLID_VARIANT_COLORS: Partial<Record<SealVariant, string>> = {
   amarelo: '#ffcb00',
 };
 
-export function getSealAlt(language: SealLanguage) {
+export function getSealAlt(language: SealLanguage, componentType?: 'seal' | 'badge') {
+  if (componentType === 'badge') {
+    return language === 'en' ? 'made in Brazil' : 'feito no Brasil';
+  }
   return language === 'en' ? 'Made in Brazil' : 'Feito no Brasil';
 }
 
@@ -83,7 +89,20 @@ export function getSealAssetPath(language: SealLanguage, style: SealStyle = 'div
   return style === 'serio' ? '/selos/feitonobrasil-serio.svg' : '/selos/feitonobrasil.svg';
 }
 
-export function getSealDimensions(scale: SealScale) {
+export function getSealDimensions(scale: SealScale, componentType?: 'seal' | 'badge', language?: SealLanguage) {
+  if (componentType === 'badge') {
+    const leftText = language === 'en' ? 'made in' : 'feito no';
+    const rightText = language === 'en' ? 'Brazil' : 'Brasil';
+    const leftTextWidth = Math.round(getTextWidth(leftText) * 10) / 10;
+    const rightTextWidth = Math.round(getTextWidth(rightText) * 10) / 10;
+    const leftWidth = 5 + 14 + 3 + leftTextWidth + 10;
+    const rightWidth = 10 + rightTextWidth + 10;
+    const totalWidth = leftWidth + rightWidth;
+    return {
+      width: Math.round(totalWidth * scale),
+      height: Math.round(20 * scale),
+    };
+  }
   return {
     width: Math.round(250 * scale),
     height: Math.round(120 * scale),
@@ -181,6 +200,19 @@ export function resolveSealColors(
 }
 
 export function buildSealUrl(options: SealOptions, baseUrl = SEAL_BASE_URL) {
+  if (options.componentType === 'badge') {
+    const url = new URL(`/${options.language}/badge.svg`, baseUrl);
+    url.searchParams.set('variant', options.variant);
+    url.searchParams.set('scale', String(options.scale));
+    if (options.colorMode === 'single') {
+      url.searchParams.set('color', normalizeHexColor(options.singleColor, '#232324'));
+    } else if (options.colorMode === 'split') {
+      url.searchParams.set('feito', normalizeHexColor(options.feitoColor, '#232324'));
+      url.searchParams.set('brasil', normalizeHexColor(options.brasilColor, '#009440'));
+    }
+    return url.toString();
+  }
+
   const variant = options.colorMode === 'variant' ? options.variant : 'custom';
   const scaleLabel = `${options.scale}x`;
   const stylePath = options.style === 'serio' ? '/serio' : '';
@@ -221,9 +253,10 @@ export function getSnippet(
   pictureFallback?: PictureFallback,
 ) {
   const src = buildSealUrl(options);
-  const alt = getSealAlt(options.language);
-  const displayHeight = getSnippetDisplayHeight(options.scale);
-  const iframeWidth = Math.round((250 / 120) * displayHeight);
+  const alt = getSealAlt(options.language, options.componentType);
+  const { width, height } = getSealDimensions(options.scale, options.componentType, options.language);
+  const displayHeight = height;
+  const iframeWidth = width;
 
   if (kind === 'markdown') {
     return `[![${alt}](${src})](${SITE_URL})`;

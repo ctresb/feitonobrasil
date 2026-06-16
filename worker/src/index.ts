@@ -1,6 +1,7 @@
 import type { ColorMode, SealLanguage, SealOptions, SealScale, SealStyle, SealVariant } from '../../src/lib/seal';
 import { DEFAULT_BRASIL_LETTER_COLORS, getSealAssetPath, normalizeHexColor } from '../../src/lib/seal';
 import { recolorSealSvg } from '../../src/lib/sealSvg';
+import { generateBadgeSvg } from '../../src/lib/badge';
 
 type AssetsBinding = {
   fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>;
@@ -299,6 +300,30 @@ export default {
           'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
         },
       });
+    }
+
+    const pathname = url.pathname.toLowerCase();
+    const isBadge = pathname === '/badge.svg' || pathname === '/pt-br/badge.svg' || pathname === '/en/badge.svg';
+
+    if (isBadge) {
+      if (request.method !== 'GET' && request.method !== 'HEAD') {
+        return new Response('Method not allowed', { status: 405 });
+      }
+      try {
+        const options = parseRequestOptions(request);
+        options.componentType = 'badge';
+        const showLogo = url.searchParams.get('logo') !== 'false' && url.searchParams.get('logo') !== '0';
+        const svg = generateBadgeSvg(options, showLogo);
+        return request.method === 'HEAD' ? svgResponse('') : svgResponse(svg);
+      } catch (error) {
+        return new Response(error instanceof Error ? error.message : 'Unexpected badge error', {
+          status: 500,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': 'text/plain; charset=utf-8',
+          },
+        });
+      }
     }
 
     if (request.method !== 'GET' && request.method !== 'HEAD') {

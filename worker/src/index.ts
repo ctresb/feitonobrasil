@@ -23,6 +23,12 @@ const DEFAULT_OPTIONS: SealOptions = {
   brasilColor: '#009440',
 };
 
+const ROBOTS_TXT = `User-agent: *
+Allow: /
+
+Sitemap: https://feitonobrasil.dev.br/sitemap.xml
+`;
+
 function parseLanguage(value: string | null): SealLanguage | null {
   if (!value) {
     return null;
@@ -212,6 +218,15 @@ export default {
 
     try {
       const segments = getPathSegments(url);
+
+      if (url.pathname === '/robots.txt') {
+        return new Response(request.method === 'HEAD' ? null : ROBOTS_TXT, {
+          headers: {
+            'Cache-Control': 'public, max-age=0, must-revalidate',
+            'Content-Type': 'text/plain; charset=utf-8',
+          },
+        });
+      }
 
       if (segments.some((segment) => segment.startsWith('.'))) {
         return new Response('Seal not found', {

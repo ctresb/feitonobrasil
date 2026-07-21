@@ -5,6 +5,7 @@
 html {
   color: var(--ink);
   background: var(--paper);
+  overflow-x: hidden;
   scroll-behavior: smooth;
 }
 

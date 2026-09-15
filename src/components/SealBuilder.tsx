@@ -18,6 +18,7 @@ import {
   type SnippetKind,
 } from '../lib/seal';
 import { recolorSealSvg } from '../lib/sealSvg';
+import { generateBadgeSvg } from '../lib/badge';
 import './SealBuilder.css';
 
 const DEFAULT_OPTIONS: SealOptions = {
@@ -30,6 +31,7 @@ const DEFAULT_OPTIONS: SealOptions = {
   feitoColor: '#232324',
   brasilColor: '#009440',
   ...DEFAULT_BRASIL_LETTER_COLORS,
+  componentType: 'seal',
 };
 
 const colorModes: Array<{ value: ColorMode; label: string }> = [
@@ -83,6 +85,10 @@ export function SealBuilder() {
   }, [options.language, options.style]);
 
   const previewSrc = useMemo(() => {
+    if (options.componentType === 'badge') {
+      return svgDataUrl(generateBadgeSvg(options, true));
+    }
+
     if (!baseSvg) {
       return buildSealUrl(options);
     }
@@ -140,7 +146,7 @@ export function SealBuilder() {
       <div className="builder-layout">
         <div className="builder-left">
           <div className="builder-preview" style={{ background: previewBg }} aria-label="Preview do selo">
-            <img src={previewSrc} alt={getSealAlt(options.language)} />
+            <img src={previewSrc} alt={getSealAlt(options.language, options.componentType)} />
             <span>{sealUrl}</span>
           </div>
 
@@ -157,6 +163,26 @@ export function SealBuilder() {
                   {item.label}
                 </button>
               ))}
+            </div>
+
+            <div className="control-row">
+              <span>Modelo</span>
+              <div className="segmented-control">
+                <button
+                  type="button"
+                  aria-pressed={(options.componentType || 'seal') === 'seal'}
+                  onClick={() => updateOptions({ componentType: 'seal' })}
+                >
+                  Selo Redondo
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={options.componentType === 'badge'}
+                  onClick={() => updateOptions({ componentType: 'badge' })}
+                >
+                  Badge (Shield)
+                </button>
+              </div>
             </div>
 
             <div className="control-row">

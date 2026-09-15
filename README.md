@@ -1,8 +1,15 @@
 # Feito no Brasil
 
 <p align="center">
-  <a href="https://feitonobrasil.dev.br"><img src="https://selo.feitonobrasil.dev.br/pt-br/colorido/1x.svg" alt="Feito no Brasil" height="56"></a>
+  <a href="https://feitonobrasil.dev.br">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://selo.feitonobrasil.dev.br/pt-br/branco-colorido/1x.svg" height="56">
+      <source media="(prefers-color-scheme: light)" srcset="https://selo.feitonobrasil.dev.br/pt-br/colorido/1x.svg" height="56">
+      <img src="https://selo.feitonobrasil.dev.br/pt-br/colorido/1x.svg" alt="Feito no Brasil" height="56">
+    </picture>
+  </a>
 </p>
+
 
 Selo aberto para devs brasileiros marcarem READMEs, sites, bibliotecas e produtos digitais feitos daqui.
 
